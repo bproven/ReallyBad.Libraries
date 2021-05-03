@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>Really Bad Core Library</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ExifLib.Standard" Version="1.7.0" />
+    <PackageReference Include="log4net" Version="2.0.12" />
+  </ItemGroup>
+
+</Project>
