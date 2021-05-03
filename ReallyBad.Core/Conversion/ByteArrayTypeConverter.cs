@@ -33,7 +33,7 @@ namespace ReallyBad.Core.Conversion
 			return value switch
 			{
 				null => Array.Empty<byte>(),
-				string stringValue => stringValue.IsNullOrEmpty()
+				string stringValue => stringValue.NullOrEmpty()
 					? Array.Empty<byte>()
 					: Encoding.UTF8.GetBytes( stringValue ),
 				_ => base.ConvertFrom( context, culture, value )!,

@@ -15,9 +15,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-using log4net;
+using Microsoft.Extensions.Logging;
 
 using ReallyBad.Core.File;
+using ReallyBad.Core.Logging;
 using ReallyBad.Core.Text;
 using ReallyBad.Core.Validation;
 
@@ -29,7 +30,7 @@ namespace ReallyBad.IO
 	public class FileOrganizer
 	{
 
-		private static readonly ILog log = LogManager.GetLogger( typeof( FileOrganizer ) );
+		private readonly ILogger<FileOrganizer> log;
 
 		private string _pathFormat = @"yyyy\\MM\\dd";
 
@@ -40,6 +41,10 @@ namespace ReallyBad.IO
 		private int moveCount;
 
 		private int totalCount;
+
+		public FileOrganizer( ILogger<FileOrganizer> logger ) => log = logger;
+
+		public FileOrganizer() => log = Logger.CreateLogger<FileOrganizer>();
 
 		public string SourceRootDirectory { get; set; } = string.Empty;
 
@@ -79,7 +84,7 @@ namespace ReallyBad.IO
 
 			if ( IsVerbose )
 			{
-				log.Debug(
+				log.LogDebug(
 					$"{totalCount} total files.  {moveCount} moved, {errorCount} error{( errorCount == 1 ? string.Empty : "s" )}, {existsCount} not moved because they already existed in the destination." );
 			}
 		}
@@ -90,11 +95,11 @@ namespace ReallyBad.IO
 
 			if ( IsVerbose )
 			{
-				log.Info( message );
+				log.LogInformation( message );
 			}
 		}
 
-		public static bool IsDateFormatDirectory( string directoryName, string pathFormat )
+		public static bool DateFormatDirectory( string directoryName, string pathFormat )
 		{
 			Validator.ValidateNotEmpty( directoryName, nameof( directoryName ) );
 			Validator.ValidateNotEmpty( pathFormat, nameof( pathFormat ) );
@@ -108,11 +113,11 @@ namespace ReallyBad.IO
 		/// </summary>
 		/// <param name="directoryName"></param>
 		/// <returns>Boolean indicating whether the past in value is in date format.</returns>
-		public bool IsDateFormatDirectory( string directoryName )
+		public bool DateFormatDirectory( string directoryName )
 		{
 			Validator.ValidateNotEmpty( directoryName, nameof( directoryName ) );
 
-			return IsDateFormatDirectory( directoryName, PathFormat );
+			return DateFormatDirectory( directoryName, PathFormat );
 		}
 
 		public static string GetRelativePath( string subFolder, string folder )
@@ -152,7 +157,7 @@ namespace ReallyBad.IO
 				GetRelativePath( sourceFileInfo.Directory?.FullName ?? string.Empty, SourceRootDirectory );
 			var sourceDirectoryInfo = new DirectoryInfo( sourceDirectory );
 
-			if ( IsDateFormatDirectory( sourceDirectoryInfo.Name ) )
+			if ( DateFormatDirectory( sourceDirectoryInfo.Name ) )
 			{
 				sourceDirectory = GetRelativePath( sourceFileInfo.Directory?.Parent?.FullName ?? string.Empty,
 					SourceRootDirectory );
@@ -281,7 +286,7 @@ namespace ReallyBad.IO
 				catch ( Exception ex )
 				{
 					errorCount++;
-					log.Error( $"Error moving {fileInfo.Name}. {ex.Message}", ex );
+					log.LogError( $"Error moving {fileInfo.Name}. {ex.Message}", ex );
 				}
 			}
 
@@ -290,7 +295,7 @@ namespace ReallyBad.IO
 				return;
 			}
 
-			if ( !IsDateFormatDirectory( sourceDirectoryInfo.Name ) || !sourceDirectoryInfo.IsEmpty() )
+			if ( !DateFormatDirectory( sourceDirectoryInfo.Name ) || !sourceDirectoryInfo.Empty() )
 			{
 				return;
 			}

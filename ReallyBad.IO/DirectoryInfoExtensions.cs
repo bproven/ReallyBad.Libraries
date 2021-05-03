@@ -21,7 +21,7 @@ namespace ReallyBad.IO
 	public static class DirectoryInfoExtensions
 	{
 
-		public static bool IsEmpty( this DirectoryInfo directoryInfo )
+		public static bool Empty( this DirectoryInfo directoryInfo )
 			=> !directoryInfo.EnumerateFileSystemInfos().Any();
 
 	}

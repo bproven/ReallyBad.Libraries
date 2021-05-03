@@ -34,7 +34,7 @@ namespace ReallyBad.Core.Reflection
 
 		private static string GetResourceName( Assembly assembly, string nameSpace, string resourceName )
 		{
-			var separator = nameSpace.IsNullOrEmpty() ? string.Empty : NamespaceSeparator;
+			var separator = nameSpace.NullOrEmpty() ? string.Empty : NamespaceSeparator;
 			var namespaceName = GetNamespaceName( assembly, nameSpace );
 
 			return$"{namespaceName}{separator}{resourceName}";

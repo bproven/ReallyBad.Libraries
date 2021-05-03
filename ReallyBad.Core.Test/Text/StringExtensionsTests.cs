@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 using Xunit;
 
 using ReallyBad.Core.Text;
 
-namespace ReallyBad.Common.Test.Text
+namespace ReallyBad.Core.Test.Text
 {
 
     public class StringExtensionsTests

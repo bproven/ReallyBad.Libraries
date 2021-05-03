@@ -13,8 +13,9 @@
 using System;
 using System.ComponentModel;
 
-using log4net;
+using Microsoft.Extensions.Logging;
 
+using ReallyBad.Core.Logging;
 using ReallyBad.Core.Text;
 
 #nullable enable
@@ -22,15 +23,22 @@ using ReallyBad.Core.Text;
 namespace ReallyBad.Core.Conversion
 {
 
-	public static class StringTypeConverter
+	public class StringTypeConverter
 	{
 
-		private static readonly ILog log = LogManager.GetLogger( typeof( StringTypeConverter ) );
+		private readonly ILogger<StringTypeConverter> log;
+
+		public StringTypeConverter()
+			: this( Logger.CreateLogger<StringTypeConverter>() )
+		{
+		}
+
+		public StringTypeConverter( ILogger<StringTypeConverter> logger ) => log = logger;
 
 		/// <summary>
 		/// True to return the default value on exception.
 		/// </summary>
-		public static bool IsIgnoreErrors { get; set; } = true;
+		public bool IsIgnoreErrors { get; set; } = true;
 
 		/// <summary>
 		/// Convert the input string to the desired type and return it,
@@ -40,11 +48,11 @@ namespace ReallyBad.Core.Conversion
 		/// <param name="defaultValue">The default value if the input is empty, or there is an error converting the string.</param>
 		/// <param name="isIgnoreErrors">true to ignore conversion exceptions and return the defaultValue.</param>
 		/// <returns>The converted value or the defaultValue if there was an error.</returns>
-		public static T? ConvertTo<T>( string value, T? defaultValue, bool isIgnoreErrors )
+		public T? ConvertTo<T>( string value, T? defaultValue, bool isIgnoreErrors )
 		{
 			var result = defaultValue;
 
-			if ( value.IsNullOrEmpty() )
+			if ( value.NullOrEmpty() )
 			{
 				return result;
 			}
@@ -55,7 +63,7 @@ namespace ReallyBad.Core.Conversion
 			}
 			catch ( NotSupportedException ex )
 			{
-				log.Error( $"Error: can not convert string '{value}' to {typeof( T ).Name}", ex );
+				log.LogError( $"Error: can not convert string '{value}' to {typeof( T ).Name}", ex );
 
 				if ( !isIgnoreErrors )
 				{
@@ -64,7 +72,7 @@ namespace ReallyBad.Core.Conversion
 			}
 			catch ( FormatException ex )
 			{
-				log.Error( $"Error: invalid format attempting to convert string '{value}' to {typeof( T ).Name}", ex );
+				log.LogError( $"Error: invalid format attempting to convert string '{value}' to {typeof( T ).Name}", ex );
 
 				if ( !isIgnoreErrors )
 				{
@@ -73,7 +81,7 @@ namespace ReallyBad.Core.Conversion
 			}
 			catch ( Exception ex )
 			{
-				log.Error( $"Error: {ex.Message}", ex );
+				log.LogError( $"Error: {ex.Message}", ex );
 
 				if ( !isIgnoreErrors )
 				{
@@ -91,7 +99,7 @@ namespace ReallyBad.Core.Conversion
 		/// <param name="value">The value to convert.</param>
 		/// <param name="defaultValue">The default value if the input is empty, or there is an error converting the string.</param>
 		/// <returns>The converted value or the defaultValue if there was an error.</returns>
-		public static T? ConvertTo<T>( string value, T? defaultValue )
+		public T? ConvertTo<T>( string value, T? defaultValue )
 			=> ConvertTo( value, defaultValue, IsIgnoreErrors );
 
 		/// <summary>
@@ -100,7 +108,7 @@ namespace ReallyBad.Core.Conversion
 		/// <typeparam name="T">The type to convert the string to.</typeparam>
 		/// <param name="value">The value to convert.</param>
 		/// <returns>The converted value or the default value for the type T if there was an error.</returns>
-		public static T? ConvertTo<T>( string value ) => ConvertTo<T>( value, default );
+		public T? ConvertTo<T>( string value ) => ConvertTo<T>( value, default );
 
 	}
 

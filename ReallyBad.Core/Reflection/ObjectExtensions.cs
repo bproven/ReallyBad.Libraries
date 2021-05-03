@@ -14,8 +14,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using log4net;
+using Microsoft.Extensions.Logging;
 
+using ReallyBad.Core.Logging;
 using ReallyBad.Core.Validation;
 
 #nullable enable
@@ -26,7 +27,11 @@ namespace ReallyBad.Core.Reflection
 	public static class ObjectExtensions
 	{
 
-		private static readonly ILog log = LogManager.GetLogger( typeof( ObjectExtensions ) );
+		private static readonly string name = typeof( ObjectExtensions ).FullName ?? string.Empty;
+
+		private static ILogger? _log;
+
+		private static ILogger Log => _log ??= Logger.CreateLogger( name );
 
 		public static object? GetPropertyValueObject( this object item, string propertyName,
 			object? defaultValue )
@@ -64,7 +69,7 @@ namespace ReallyBad.Core.Reflection
 				}
 				catch ( ArgumentException ex )
 				{
-					log.Error( ex.Message, ex );
+					Log.LogError( ex.Message, ex );
 
 					if ( throwIfNotFound )
 					{

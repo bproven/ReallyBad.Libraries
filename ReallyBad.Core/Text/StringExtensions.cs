@@ -13,9 +13,10 @@
 using System;
 using System.ComponentModel;
 
-using log4net;
+using Microsoft.Extensions.Logging;
 
 using ReallyBad.Core.Conversion;
+using ReallyBad.Core.Logging;
 
 #nullable enable
 
@@ -25,7 +26,11 @@ namespace ReallyBad.Core.Text
 	public static class StringExtensions
 	{
 
-		private static readonly ILog log = LogManager.GetLogger( typeof( StringExtensions ) );
+		private static readonly string name = typeof( StringExtensions ).FullName ?? string.Empty;
+
+		private static ILogger? _log;
+
+		private static ILogger Log => _log ??= Logger.CreateLogger( name );
 
 		public static string TrimStart( this string s, string trim )
 		{
@@ -75,7 +80,7 @@ namespace ReallyBad.Core.Text
 			}
 			catch ( NotSupportedException ex )
 			{
-				log.Error( $"Can not convert string '{stringValue}' to {type.Name}", ex );
+				Log.LogError( $"Can not convert string '{stringValue}' to {type.Name}", ex );
 
 				if ( !isIgnoreErrors )
 				{
@@ -84,7 +89,7 @@ namespace ReallyBad.Core.Text
 			}
 			catch ( ArgumentException ex )
 			{
-				log.Error( ex.InnerException is FormatException
+				Log.LogError( ex.InnerException is FormatException
 						? $"Invalid format attempting to convert string '{stringValue}' to {type.Name}, {ex.Message}"
 						: $"Invalid argument {stringValue}, {ex.Message}",
 					ex );
@@ -96,7 +101,7 @@ namespace ReallyBad.Core.Text
 			}
 			catch ( Exception ex )
 			{
-				log.Error( ex.Message, ex );
+				Log.LogError( ex.Message, ex );
 
 				if ( !isIgnoreErrors )
 				{
@@ -131,7 +136,7 @@ namespace ReallyBad.Core.Text
 		public static T? GetValue<T>( this string stringValue, bool isIgnoreErrors = false )
 			=> stringValue.GetValue( GetDefaultValue<T>(), isIgnoreErrors );
 
-		public static bool IsNullOrEmpty( this string? s ) => string.IsNullOrEmpty( s );
+		public static bool NullOrEmpty( this string? s ) => string.IsNullOrEmpty( s );
 
 		public static string Safe( this string? s, string? def = null )
 		{

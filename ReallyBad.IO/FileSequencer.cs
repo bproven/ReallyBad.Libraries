@@ -15,9 +15,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using log4net;
+using Microsoft.Extensions.Logging;
 
 using ReallyBad.Core.File;
+using ReallyBad.Core.Logging;
 using ReallyBad.Core.Validation;
 
 namespace ReallyBad.IO
@@ -26,7 +27,14 @@ namespace ReallyBad.IO
 	public class FileSequencer
 	{
 
-		private static ILog log = LogManager.GetLogger( typeof( FileSequencer ) );
+		private ILogger<FileSequencer> log;
+
+		public FileSequencer()
+			: this( Logger.CreateLogger<FileSequencer>() )
+		{
+		}
+
+		public FileSequencer( ILogger<FileSequencer> logger ) => log = logger;
 
 		private string _dest = string.Empty;
 

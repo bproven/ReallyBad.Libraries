@@ -26,12 +26,12 @@ namespace ReallyBad.Core.Validation
 
 		private static readonly DateTime emptyDateTime = new();
 
-		private static bool IsNotEmpty( object? item )
+		private static bool NotEmpty( object? item )
 		{
 			switch ( item )
 			{
 				case null:
-				case string s when s.IsNullOrEmpty():
+				case string s when s.NullOrEmpty():
 				case DateTime dateTime when dateTime == emptyDateTime:
 				case Guid guid when guid == Guid.Empty:
 
@@ -43,11 +43,11 @@ namespace ReallyBad.Core.Validation
 			}
 		}
 
-		private static bool IsNotEmpty<T>( IEnumerable<T> enumerable ) => enumerable.Any();
+		private static bool NotEmpty<T>( IEnumerable<T> enumerable ) => enumerable.Any();
 
 		public static void ValidateNotEmpty<T>( IEnumerable<T> enumerable, string name )
 		{
-			if ( !IsNotEmpty( enumerable ) )
+			if ( !NotEmpty( enumerable ) )
 			{
 				throw new ArgumentNullException( $"{name} is empty.", name );
 			}
@@ -55,7 +55,7 @@ namespace ReallyBad.Core.Validation
 
 		public static void ValidateNotEmpty( object? item, string name )
 		{
-			if ( !IsNotEmpty( item ) )
+			if ( !NotEmpty( item ) )
 			{
 				throw new ArgumentNullException( $"{name} is empty.", name );
 			}

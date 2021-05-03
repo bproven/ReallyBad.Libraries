@@ -15,8 +15,9 @@ using System.IO;
 
 using ExifLib;
 
-using log4net;
+using Microsoft.Extensions.Logging;
 
+using ReallyBad.Core.Logging;
 using ReallyBad.Core.Validation;
 
 #nullable enable
@@ -29,7 +30,14 @@ namespace ReallyBad.Core.File
 	public class ImageFileInfoProvider : IImageFileInfoProvider
 	{
 
-		private static readonly ILog log = LogManager.GetLogger( typeof( ImageFileInfoProvider ) );
+		private readonly ILogger<ImageFileInfoProvider> log;
+
+		public ImageFileInfoProvider( ILogger<ImageFileInfoProvider> logger ) => log = logger;
+
+		public ImageFileInfoProvider()
+			: this( Logger.CreateLogger<ImageFileInfoProvider>() )
+		{
+		}
 
 		/// <summary>
 		/// Gets the Date Taken from the file specified by fileInfo.  If the image does not contain a date taken, returns the
@@ -59,7 +67,7 @@ namespace ReallyBad.Core.File
 			}
 
 			returnDateTime = fileInfo.LastWriteTime;
-			log.Warn( $"Image date not found for {fileInfo.FullName}" );
+			log.LogWarning( $"Image date not found for {fileInfo.FullName}" );
 
 			return returnDateTime;
 		}
