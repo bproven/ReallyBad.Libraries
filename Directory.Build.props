@@ -2,7 +2,7 @@
 <!-- Solution Wide Project Properties -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+      <TargetFramework>net5.0</TargetFramework>
         <PackageOutputPath>C:\Users\bob\OneDrive\Packages</PackageOutputPath>
         <Company>Really Bad LLC</Company>
         <Authors>Really Bad LLC</Authors>
