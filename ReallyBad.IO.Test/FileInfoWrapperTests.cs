@@ -12,6 +12,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Versioning;
 
 using ReallyBad.Core.Text;
@@ -347,6 +348,65 @@ namespace ReallyBad.IO.Test
 			var testFileInfo = new FileInfoWrapper( filePath );
 			var checkFileInfo = new FileInfo( filePath );
 			FileSystemInfoRefreshTest( testFileInfo, checkFileInfo );
+		}
+
+		[Fact]
+		public void DateTests()
+		{
+			var testFileInfo = new FileInfoWrapper( filePath );
+			var checkFileInfo = new FileInfo( filePath );
+			Assert.Equal( checkFileInfo.CreationTime, testFileInfo.CreationTime );
+			Assert.Equal( checkFileInfo.CreationTimeUtc, testFileInfo.CreationTimeUtc );
+			Assert.Equal( checkFileInfo.LastAccessTime, testFileInfo.LastAccessTime );
+			Assert.Equal( checkFileInfo.LastAccessTimeUtc, testFileInfo.LastAccessTimeUtc );
+			Assert.Equal( checkFileInfo.LastWriteTime, testFileInfo.LastWriteTime );
+			Assert.Equal( checkFileInfo.LastWriteTimeUtc, testFileInfo.LastWriteTimeUtc );
+			var now = DateTime.Now;
+			testFileInfo.CreationTime = now;
+			testFileInfo.LastAccessTime = now;
+			testFileInfo.LastWriteTime = now;
+			var utcNow = DateTime.UtcNow.AddMinutes( 30 );
+			testFileInfo.CreationTimeUtc = utcNow;
+			testFileInfo.LastAccessTimeUtc = utcNow;
+			testFileInfo.LastWriteTimeUtc = utcNow;
+			checkFileInfo.Refresh();
+			Assert.Equal( checkFileInfo.CreationTime, testFileInfo.CreationTime );
+			Assert.Equal( checkFileInfo.CreationTimeUtc, testFileInfo.CreationTimeUtc );
+			Assert.Equal( checkFileInfo.LastAccessTime, testFileInfo.LastAccessTime );
+			Assert.Equal( checkFileInfo.LastAccessTimeUtc, testFileInfo.LastAccessTimeUtc );
+			Assert.Equal( checkFileInfo.LastWriteTime, testFileInfo.LastWriteTime );
+			Assert.Equal( checkFileInfo.LastWriteTimeUtc, testFileInfo.LastWriteTimeUtc );
+		}
+
+		[Fact]
+		public void ToStringTest()
+		{
+			var testFileInfo = new FileInfoWrapper( filePath );
+			Assert.EndsWith( FileName, testFileInfo.ToString() );
+		}
+
+		[Fact]
+		public void ExtensionTest()
+		{
+			var testFileInfo = new FileInfoWrapper( filePath );
+			Assert.Equal( ".txt", testFileInfo.Extension );
+		}
+
+		[Fact]
+		public void ExistsTest()
+		{
+			var testFileInfo = new FileInfoWrapper( filePath );
+			Assert.True( testFileInfo.Exists );
+		}
+
+		[Fact]
+		public void GetObjectDataTest()
+		{
+			var testFileInfo = new FileInfoWrapper( filePath );
+			var serializationInfo = new SerializationInfo( typeof( FileInfo ), new FormatterConverter() );
+			Assert.Throws<PlatformNotSupportedException>( ()
+				=> testFileInfo.GetObjectData( serializationInfo,
+					new StreamingContext( StreamingContextStates.All ) ) );
 		}
 
 	}

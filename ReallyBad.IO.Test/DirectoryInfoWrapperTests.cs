@@ -11,6 +11,7 @@
 // 
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -363,6 +364,41 @@ namespace ReallyBad.IO.Test
 			subDir2.MoveTo( Path.Combine( TestPath, dirPath ) );
 			Assert.False( System.IO.Directory.Exists( oldPath ) );
 			Assert.True( System.IO.Directory.Exists( subDir2.FullName ) );
+		}
+
+		[Fact]
+		public void EnumerableTest()
+		{
+			var directoryInfo = new DirectoryInfoWrapper( Root );
+			IEnumerable enumerable = directoryInfo.EnumerateDirectories();
+			Assert.NotNull( enumerable );
+			IEnumerator enumerator = enumerable.GetEnumerator();
+			Assert.NotNull( enumerator );
+			enumerator.MoveNext();
+			var obj1 = enumerator.Current;
+			Assert.NotNull( obj1 );
+			Assert.IsType<DirectoryInfoWrapper>( obj1 );
+		}
+
+		[Fact]
+		public void EnumeratorResetTest()
+		{
+			var directoryInfo = new DirectoryInfoWrapper( Root );
+			IEnumerable enumerable = directoryInfo.EnumerateDirectories();
+			IEnumerator enumerator = enumerable.GetEnumerator();
+			enumerator.MoveNext();
+			Assert.Throws<NotSupportedException>( () => enumerator.Reset() );
+		}
+
+		[Fact]
+		public void DisposeTest()
+		{
+			var directoryInfo = new DirectoryInfoWrapper( Root );
+			IEnumerable enumerable = directoryInfo.EnumerateDirectories();
+			IEnumerator enumerator = enumerable.GetEnumerator();
+			enumerator.MoveNext();
+			( enumerator as IDisposable )?.Dispose();
+			( enumerator as IDisposable )?.Dispose();
 		}
 
 	}

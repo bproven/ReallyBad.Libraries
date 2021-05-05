@@ -28,7 +28,8 @@ namespace ReallyBad.IO
 			{
 				FileInfo fileInfo => new FileInfoWrapper( fileInfo ),
 				DirectoryInfo directoryInfo => new DirectoryInfoWrapper( directoryInfo ),
-				_ => throw new InvalidOperationException( "Input is not a FileInfo or DirectoryInfo object." )
+				_ => throw new ArgumentException( "Input is not a FileInfo or DirectoryInfo object.",
+					nameof( fileSystemInfo ) )
 			};
 		}
 

@@ -33,8 +33,8 @@ namespace ReallyBad.IO
 
 		public void Reset()
 		{
-			_enumerator.Reset();
 			_current = null;
+			throw new NotSupportedException();
 		}
 
 		private bool disposedValue;

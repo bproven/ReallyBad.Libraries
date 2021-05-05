@@ -54,45 +54,63 @@ namespace ReallyBad.IO.Test
 			TestSub = subDirInfo.FullName;
 		}
 
-		protected void FileSystemInfoRefreshTest( FileSystemInfoWrapper testFileSystemInfo, FileSystemInfo checkFileSystemInfo )
-		{
-
-			// load the attributes
-			Assert.False( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
-
-			// set RO from another object
-			checkFileSystemInfo.Attributes |= FileAttributes.ReadOnly;
-
-			// still off in this one.
-			Assert.False( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
-
-			// refresh
-			testFileSystemInfo.Refresh();
-
-			// now it's on in this one
-			Assert.True( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
-
-			// turn off
-			checkFileSystemInfo.Attributes &= ~FileAttributes.ReadOnly;
-
-			// still thinks its on
-			Assert.True( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
-
-			// refresh
-			testFileSystemInfo.Refresh();
-
-			// now it's off again
-			Assert.False( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
-
-		}
-
-
-
 		public void Dispose()
 		{
 			System.IO.Directory.Delete( TestPath, true );
 		}
 
+		protected void FileSystemInfoRefreshTest( FileSystemInfoWrapper testFileSystemInfo, FileSystemInfo checkFileSystemInfo )
+		{
+
+			// load the attributes
+			Assert.False( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+			Assert.False( ( checkFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+
+			// set RO from other
+			checkFileSystemInfo.Attributes |= FileAttributes.ReadOnly;
+
+			// still off in this one.
+			Assert.False( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+			// on
+			Assert.True( ( checkFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+
+			// refresh
+			testFileSystemInfo.Refresh();
+
+			// now it's on in both
+			Assert.True( ( checkFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+			Assert.True( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+
+			// turn off
+			testFileSystemInfo.Attributes &= ~FileAttributes.ReadOnly;
+
+			// still thinks its on
+			Assert.True( ( checkFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+			// off 
+			Assert.False( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+
+			// refresh
+			checkFileSystemInfo.Refresh();
+
+			// now it's off again
+			Assert.False( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+			Assert.False( ( checkFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+
+		}
+
+		public class BadFileInfo : FileSystemInfo
+		{
+			public override void Delete() => throw new NotImplementedException(); 
+			public override bool Exists => throw new NotImplementedException();
+			public override string Name => throw new NotImplementedException();
+		}
+
+		[Fact]
+		public void CreateFileSystemInfoTest()
+		{
+			Assert.Throws<ArgumentException>( () => FileSystemInfoWrapper.Create( new BadFileInfo() ) );
+		}
+		
 	}
 
 }
