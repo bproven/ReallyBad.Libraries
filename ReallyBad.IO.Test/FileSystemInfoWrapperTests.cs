@@ -13,6 +13,8 @@
 using System;
 using System.IO;
 
+using Xunit;
+
 #nullable enable
 
 namespace ReallyBad.IO.Test
@@ -51,6 +53,40 @@ namespace ReallyBad.IO.Test
 
 			TestSub = subDirInfo.FullName;
 		}
+
+		protected void FileSystemInfoRefreshTest( FileSystemInfoWrapper testFileSystemInfo, FileSystemInfo checkFileSystemInfo )
+		{
+
+			// load the attributes
+			Assert.False( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+
+			// set RO from another object
+			checkFileSystemInfo.Attributes |= FileAttributes.ReadOnly;
+
+			// still off in this one.
+			Assert.False( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+
+			// refresh
+			testFileSystemInfo.Refresh();
+
+			// now it's on in this one
+			Assert.True( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+
+			// turn off
+			checkFileSystemInfo.Attributes &= ~FileAttributes.ReadOnly;
+
+			// still thinks its on
+			Assert.True( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+
+			// refresh
+			testFileSystemInfo.Refresh();
+
+			// now it's off again
+			Assert.False( ( testFileSystemInfo.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+
+		}
+
+
 
 		public void Dispose()
 		{

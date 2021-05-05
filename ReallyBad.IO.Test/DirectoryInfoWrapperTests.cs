@@ -100,36 +100,10 @@ namespace ReallyBad.IO.Test
 		{
 			var subDir = Guid.NewGuid().ToString();
 			var path = Path.Combine( TestSub, subDir );
-			var dir = new DirectoryInfo( path );
-			dir.Create();
-			var dir2 = new DirectoryInfoWrapper( path );
-
-			// load the attributes
-			Assert.False( ( dir2.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
-
-			// set RO from another object
-			dir.Attributes |= FileAttributes.ReadOnly;
-
-			// still off in this one.
-			Assert.False( ( dir2.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
-
-			// refresh
-			dir2.Refresh();
-
-			// now it's on in this one
-			Assert.True( ( dir2.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
-
-			// turn off
-			dir.Attributes &= ~FileAttributes.ReadOnly;
-
-			// still thinks its on
-			Assert.True( ( dir2.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
-
-			// refresh
-			dir2.Refresh();
-
-			// now it's off again
-			Assert.False( ( dir2.Attributes & FileAttributes.ReadOnly ) == FileAttributes.ReadOnly );
+			var checkFileSystemInfo = new DirectoryInfo( path );
+			checkFileSystemInfo.Create();
+			var testFileSystemInfo = new DirectoryInfoWrapper( path );
+			FileSystemInfoRefreshTest( testFileSystemInfo, checkFileSystemInfo );
 		}
 
 		[Fact]
