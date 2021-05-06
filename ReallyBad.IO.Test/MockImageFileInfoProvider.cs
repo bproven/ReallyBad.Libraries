@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.IO.Abstractions;
 
 using ReallyBad.Core.File;
 
@@ -13,7 +14,7 @@ namespace ReallyBad.IO.Test
 
         public DateTime GetDateTaken( string filePath ) => DateTime;
 
-        public DateTime GetDateTaken( FileInfo fileInfo ) => DateTime;
+        public DateTime GetDateTaken( IFileInfo fileInfo ) => DateTime;
 
     }
 

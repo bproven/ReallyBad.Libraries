@@ -14,6 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 using Xunit;
@@ -27,25 +28,17 @@ namespace ReallyBad.IO.Test
 	{
 
 		[Fact]
-		public void CtorInfoTest()
-		{
-			var expected = new DirectoryInfo( TestSub );
-			var actual = new DirectoryInfoWrapper( expected );
-			Assert.Same( expected, actual.DirectoryInfo );
-		}
-
-		[Fact]
 		public void CtorPathTest()
 		{
 			var expected = new DirectoryInfo( TestSub );
-			var actual = new DirectoryInfoWrapper( TestSub );
+			var actual = FileSystem.DirectoryInfo.FromDirectoryName( TestSub );
 			Assert.Equal( expected.FullName, actual.FullName );
 		}
 
 		[Fact]
 		public void ParentTest()
 		{
-			var subDir = new DirectoryInfoWrapper( TestSub );
+			var subDir = FileSystem.DirectoryInfo.FromDirectoryName( TestSub );
 			Assert.NotNull( subDir.Parent );
 			var parent = subDir.Parent;
 			Assert.Equal( TestPath, parent?.FullName );
@@ -54,7 +47,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void RootTest()
 		{
-			var subDir = new DirectoryInfoWrapper( TestSub );
+			var subDir = FileSystem.DirectoryInfo.FromDirectoryName( TestSub );
 			var root = subDir.Root;
 			var subDir1 = new DirectoryInfo( TestSub );
 			Assert.Equal( subDir1.Root.FullName, root.FullName );
@@ -65,9 +58,9 @@ namespace ReallyBad.IO.Test
 		{
 			var subDir = Guid.NewGuid().ToString();
 			var path = Path.Combine( TestSub, subDir );
-			var dir = new DirectoryInfoWrapper( path );
+			var dir = FileSystem.DirectoryInfo.FromDirectoryName( path );
 			dir.Create();
-			Assert.True( System.IO.Directory.Exists( path ) );
+			Assert.True( Directory.Exists( path ) );
 		}
 
 		[Fact]
@@ -77,9 +70,9 @@ namespace ReallyBad.IO.Test
 			var path = Path.Combine( TestSub, subDir );
 			var dir = new DirectoryInfo( path );
 			dir.Create();
-			var dir2 = new DirectoryInfoWrapper( path );
+			var dir2 = FileSystem.DirectoryInfo.FromDirectoryName( path );
 			dir2.Delete();
-			Assert.False( System.IO.Directory.Exists( path ) );
+			Assert.False( Directory.Exists( path ) );
 		}
 
 		[Fact]
@@ -91,9 +84,9 @@ namespace ReallyBad.IO.Test
 			testDir.Create();
 			var subDir2 = Guid.NewGuid().ToString();
 			testDir.CreateSubdirectory( subDir2 );
-			var dir2 = new DirectoryInfoWrapper( path );
+			var dir2 = FileSystem.DirectoryInfo.FromDirectoryName( path );
 			dir2.Delete( true );
-			Assert.False( System.IO.Directory.Exists( path ) );
+			Assert.False( Directory.Exists( path ) );
 		}
 
 		[Fact]
@@ -103,18 +96,18 @@ namespace ReallyBad.IO.Test
 			var path = Path.Combine( TestSub, subDir );
 			var checkFileSystemInfo = new DirectoryInfo( path );
 			checkFileSystemInfo.Create();
-			var testFileSystemInfo = new DirectoryInfoWrapper( path );
+			var testFileSystemInfo = FileSystem.DirectoryInfo.FromDirectoryName( path );
 			FileSystemInfoRefreshTest( testFileSystemInfo, checkFileSystemInfo );
 		}
 
 		[Fact]
 		public void CreateSubdirectoryTest()
 		{
-			var dir = new DirectoryInfoWrapper( TestPath );
+			var dir = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			var testPath = Guid.NewGuid().ToString();
 			var path = Path.Combine( TestPath, testPath );
 			dir.CreateSubdirectory( testPath );
-			Assert.True( System.IO.Directory.Exists( path ) );
+			Assert.True( Directory.Exists( path ) );
 		}
 
 		private IList<TOut> ToList<TIn, TOut>( IEnumerable<TIn> input, Func<TIn, TOut> select )
@@ -145,7 +138,7 @@ namespace ReallyBad.IO.Test
 		public void EnumDirectoriesTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.EnumerateDirectories(), () => directoryInfo.EnumerateDirectories() );
 		}
 
@@ -153,7 +146,7 @@ namespace ReallyBad.IO.Test
 		public void EnumDirectoriesSearchPatternTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.EnumerateDirectories( SearchPattern ),
 				() => directoryInfo.EnumerateDirectories( SearchPattern ) );
 		}
@@ -162,7 +155,7 @@ namespace ReallyBad.IO.Test
 		public void EnumDirectoriesSearchPatternSearchOptionTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.EnumerateDirectories( SearchPattern, DirectorySearchOption ),
 				() => directoryInfo.EnumerateDirectories( SearchPattern, DirectorySearchOption ) );
 		}
@@ -171,7 +164,7 @@ namespace ReallyBad.IO.Test
 		public void EnumDirectoriesSearchPatternEnumOptionTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual(
 				() => expectedDirectoryInfo.EnumerateDirectories( SearchPattern, EnumerationOptions ),
 				() => directoryInfo.EnumerateDirectories( SearchPattern, EnumerationOptions ) );
@@ -181,7 +174,7 @@ namespace ReallyBad.IO.Test
 		public void EnumFilesSearchPatternEnumOptionsTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.EnumerateFiles( SearchPattern, EnumerationOptions ),
 				() => directoryInfo.EnumerateFiles( SearchPattern, EnumerationOptions ) );
 		}
@@ -190,7 +183,7 @@ namespace ReallyBad.IO.Test
 		public void EnumFilesSearchPatternSearchOptionsTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.EnumerateFiles( SearchPattern, DirectorySearchOption ),
 				() => directoryInfo.EnumerateFiles( SearchPattern, DirectorySearchOption ) );
 		}
@@ -199,7 +192,7 @@ namespace ReallyBad.IO.Test
 		public void EnumFilesSearchPatternTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.EnumerateFiles( SearchPattern ),
 				() => directoryInfo.EnumerateFiles( SearchPattern ) );
 		}
@@ -208,7 +201,7 @@ namespace ReallyBad.IO.Test
 		public void EnumFilesTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.EnumerateFiles(),
 				() => directoryInfo.EnumerateFiles() );
 		}
@@ -217,7 +210,7 @@ namespace ReallyBad.IO.Test
 		public void EnumFileSystemInfosTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.EnumerateFileSystemInfos(),
 				() => directoryInfo.EnumerateFileSystemInfos() );
 		}
@@ -226,7 +219,7 @@ namespace ReallyBad.IO.Test
 		public void EnumFileSystemInfosSearchPatternTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.EnumerateFileSystemInfos( SearchPattern ),
 				() => directoryInfo.EnumerateFileSystemInfos( SearchPattern ) );
 		}
@@ -235,7 +228,7 @@ namespace ReallyBad.IO.Test
 		public void EnumFileSystemInfosSearchPatternSearchOptionTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.EnumerateFileSystemInfos( SearchPattern, DirectorySearchOption ),
 				() => directoryInfo.EnumerateFileSystemInfos( SearchPattern, DirectorySearchOption ) );
 		}
@@ -244,7 +237,7 @@ namespace ReallyBad.IO.Test
 		public void EnumFileSystemInfosSearchPatternEnumOptionTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.EnumerateFileSystemInfos( SearchPattern, EnumerationOptions ),
 				() => directoryInfo.EnumerateFileSystemInfos( SearchPattern, EnumerationOptions ) );
 		}
@@ -253,7 +246,7 @@ namespace ReallyBad.IO.Test
 		public void GetDirectoriesTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetDirectories(), () => directoryInfo.GetDirectories() );
 		}
 
@@ -261,7 +254,7 @@ namespace ReallyBad.IO.Test
 		public void GetDirectoriesSearchPatternTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetDirectories( SearchPattern ),
 				() => directoryInfo.GetDirectories( SearchPattern ) );
 		}
@@ -270,7 +263,7 @@ namespace ReallyBad.IO.Test
 		public void GetDirectoriesSearchPatternSearchOptionTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetDirectories( SearchPattern, DirectorySearchOption ),
 				() => directoryInfo.GetDirectories( SearchPattern, DirectorySearchOption ) );
 		}
@@ -279,7 +272,7 @@ namespace ReallyBad.IO.Test
 		public void GetDirectoriesSearchPatternEnumOptionsTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetDirectories( SearchPattern, EnumerationOptions ),
 				() => directoryInfo.GetDirectories( SearchPattern, EnumerationOptions ) );
 		}
@@ -288,7 +281,7 @@ namespace ReallyBad.IO.Test
 		public void GetFilesTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetFiles(), () => directoryInfo.GetFiles() );
 		}
 
@@ -296,7 +289,7 @@ namespace ReallyBad.IO.Test
 		public void GetFilesSearchPatternTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetFiles( SearchPattern ),
 				() => directoryInfo.GetFiles( SearchPattern ) );
 		}
@@ -305,7 +298,7 @@ namespace ReallyBad.IO.Test
 		public void GetFilesSearchPatternSearchOptionTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetFiles( SearchPattern, DirectorySearchOption ),
 				() => directoryInfo.GetFiles( SearchPattern, DirectorySearchOption ) );
 		}
@@ -314,7 +307,7 @@ namespace ReallyBad.IO.Test
 		public void GetFilesSearchPatternEnumOptionsTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetFiles( SearchPattern, EnumerationOptions ),
 				() => directoryInfo.GetFiles( SearchPattern, EnumerationOptions ) );
 		}
@@ -323,7 +316,7 @@ namespace ReallyBad.IO.Test
 		public void GetFileSystemInfosTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetFileSystemInfos(), () => directoryInfo.GetFileSystemInfos() );
 		}
 
@@ -331,7 +324,7 @@ namespace ReallyBad.IO.Test
 		public void GetFileSystemInfosSearchPatternTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetFileSystemInfos( SearchPattern ),
 				() => directoryInfo.GetFileSystemInfos( SearchPattern ) );
 		}
@@ -340,7 +333,7 @@ namespace ReallyBad.IO.Test
 		public void GetFileSystemInfosSearchPatternSearchOptionTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetFileSystemInfos( SearchPattern, DirectorySearchOption ),
 				() => directoryInfo.GetFileSystemInfos( SearchPattern, DirectorySearchOption ) );
 		}
@@ -349,7 +342,7 @@ namespace ReallyBad.IO.Test
 		public void GetFileSystemInfosSearchPatternEnumOptionsTest()
 		{
 			var expectedDirectoryInfo = new DirectoryInfo( TestPath );
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			EnumEqual( () => expectedDirectoryInfo.GetFileSystemInfos( SearchPattern, EnumerationOptions ),
 				() => directoryInfo.GetFileSystemInfos( SearchPattern, EnumerationOptions ) );
 		}
@@ -358,18 +351,18 @@ namespace ReallyBad.IO.Test
 		public void MoveToTest()
 		{
 			var dirPath = Guid.NewGuid().ToString();
-			var subDir = new DirectoryInfoWrapper( TestPath );
+			var subDir = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			var subDir2 = subDir.CreateSubdirectory( dirPath );
 			var oldPath = subDir2.FullName;
 			subDir2.MoveTo( Path.Combine( TestSub, dirPath ) );
-			Assert.False( System.IO.Directory.Exists( oldPath ) );
-			Assert.True( System.IO.Directory.Exists( subDir2.FullName ) );
+			Assert.False( Directory.Exists( oldPath ) );
+			Assert.True( Directory.Exists( subDir2.FullName ) );
 		}
 
 		[Fact]
 		public void EnumerableTest()
 		{
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			IEnumerable enumerable = directoryInfo.EnumerateDirectories();
 			Assert.NotNull( enumerable );
 			IEnumerator enumerator = enumerable.GetEnumerator();
@@ -383,7 +376,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void EnumeratorResetTest()
 		{
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			IEnumerable enumerable = directoryInfo.EnumerateDirectories();
 			IEnumerator enumerator = enumerable.GetEnumerator();
 			enumerator.MoveNext();
@@ -393,7 +386,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void DisposeTest()
 		{
-			var directoryInfo = new DirectoryInfoWrapper( TestPath );
+			var directoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( TestPath );
 			IEnumerable enumerable = directoryInfo.EnumerateDirectories();
 			IEnumerator enumerator = enumerable.GetEnumerator();
 			enumerator.MoveNext();

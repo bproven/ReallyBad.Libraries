@@ -12,7 +12,7 @@
 
 using System;
 using System.Globalization;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 using Microsoft.Extensions.Logging;
@@ -40,6 +40,10 @@ namespace ReallyBad.IO
 		private int moveCount;
 
 		private int totalCount;
+
+		private FileSystem FileSystem { get; } = new();
+
+		private IPath Path => FileSystem.Path;
 
 		public FileOrganizer( ILogger<FileOrganizer> logger, IImageFileInfoProvider imageFileInfoProvider )
 		{
@@ -80,7 +84,7 @@ namespace ReallyBad.IO
 
 		public void Organize()
 		{
-			var rootDirectoryInfo = new DirectoryInfo( SourceRootDirectory );
+			var rootDirectoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( SourceRootDirectory );
 			Organize( rootDirectoryInfo );
 
 			if ( IsVerbose )
@@ -121,7 +125,7 @@ namespace ReallyBad.IO
 			return DateFormatDirectory( directoryName, PathFormat );
 		}
 
-		public static string GetRelativePath( string subFolder, string folder )
+		public string GetRelativePath( string subFolder, string folder )
 		{
 			var pathUri = new Uri( subFolder );
 
@@ -145,7 +149,7 @@ namespace ReallyBad.IO
 			return result;
 		}
 
-		public string GetDestinationParentDirectory( FileInfo sourceFileInfo )
+		public string GetDestinationParentDirectory( IFileInfo sourceFileInfo )
 		{
 			var destinationParentDirectory = DestRootDirectory;
 
@@ -156,7 +160,7 @@ namespace ReallyBad.IO
 
 			var sourceDirectory =
 				GetRelativePath( sourceFileInfo.Directory?.FullName ?? string.Empty, SourceRootDirectory );
-			var sourceDirectoryInfo = new DirectoryInfo( sourceDirectory );
+			var sourceDirectoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( sourceDirectory );
 
 			if ( DateFormatDirectory( sourceDirectoryInfo.Name ) )
 			{
@@ -169,7 +173,7 @@ namespace ReallyBad.IO
 			return destinationParentDirectory;
 		}
 
-		public static string GetDestinationPath( string sourceFileName, string destinationParentDirectory,
+		public string GetDestinationPath( string sourceFileName, string destinationParentDirectory,
 			string destinationRelativePath )
 		{
 			ArgumentValidator.ValidateNotEmpty( sourceFileName, nameof( sourceFileName ) );
@@ -179,7 +183,7 @@ namespace ReallyBad.IO
 			return Path.Combine( Path.Combine( destinationParentDirectory, destinationRelativePath ), sourceFileName );
 		}
 
-		public static FileInfo GetDestinationFileInfo( string sourceFileName, string destinationParentDirectory,
+		public IFileInfo GetDestinationFileInfo( string sourceFileName, string destinationParentDirectory,
 			string destinationRelativePath )
 		{
 			ArgumentValidator.ValidateNotEmpty( sourceFileName, nameof( sourceFileName ) );
@@ -188,10 +192,10 @@ namespace ReallyBad.IO
 			var destFullPath =
 				GetDestinationPath( sourceFileName, destinationParentDirectory, destinationRelativePath );
 
-			return new FileInfo( destFullPath );
+			return FileSystem.FileInfo.FromFileName( destFullPath );
 		}
 
-		public static FileInfo GetDestinationFileInfo( FileInfo sourceFileInfo, string destinationParentDirectory,
+		public IFileInfo GetDestinationFileInfo( IFileInfo sourceFileInfo, string destinationParentDirectory,
 			string destinationRelativePath )
 		{
 			ArgumentValidator.ValidateNotEmpty( destinationParentDirectory, nameof( destinationParentDirectory ) );
@@ -200,7 +204,7 @@ namespace ReallyBad.IO
 			return GetDestinationFileInfo( sourceFileInfo.Name, destinationParentDirectory, destinationRelativePath );
 		}
 
-		public FileInfo GetDestinationFileInfo( FileInfo sourceFileInfo, string destinationRelativePath )
+		public IFileInfo GetDestinationFileInfo( IFileInfo sourceFileInfo, string destinationRelativePath )
 		{
 			ArgumentValidator.ValidateNotEmpty( destinationRelativePath, nameof( destinationRelativePath ) );
 			var destinationParentDirectory = GetDestinationParentDirectory( sourceFileInfo );
@@ -208,7 +212,7 @@ namespace ReallyBad.IO
 			return GetDestinationFileInfo( sourceFileInfo, destinationParentDirectory, destinationRelativePath );
 		}
 
-		public FileInfo GetDestinationFileInfo( FileInfo sourceFileInfo )
+		public IFileInfo GetDestinationFileInfo( IFileInfo sourceFileInfo )
 		{
 			var destinationRelativePath = ImageFileInfoProvider.GetDateTaken( sourceFileInfo ).ToString( PathFormat );
 			var destinationParentDirectory = GetDestinationParentDirectory( sourceFileInfo );
@@ -216,7 +220,7 @@ namespace ReallyBad.IO
 			return GetDestinationFileInfo( sourceFileInfo, destinationParentDirectory, destinationRelativePath );
 		}
 
-		private void Move( FileInfo sourceFileInfo, FileInfo destFileInfo )
+		private void Move( IFileInfo sourceFileInfo, IFileInfo destFileInfo )
 		{
 			if ( IsDebug )
 			{
@@ -253,13 +257,13 @@ namespace ReallyBad.IO
 			}
 		}
 
-		private void Move( FileInfo sourceFileInfo )
+		private void Move( IFileInfo sourceFileInfo )
 		{
 			var destination = GetDestinationFileInfo( sourceFileInfo );
 			Move( sourceFileInfo, destination );
 		}
 
-		private void Organize( DirectoryInfo sourceDirectoryInfo )
+		private void Organize( IDirectoryInfo sourceDirectoryInfo )
 		{
 			if ( IsRecurse )
 			{
@@ -276,7 +280,7 @@ namespace ReallyBad.IO
 				}
 			}
 
-			//foreach ( FileInfo fileInfo in sourceDirectoryInfo.GetFiles( "*.*" ).OrderBy( f => f.Name ) )
+			//foreach ( IFileInfo fileInfo in sourceDirectoryInfo.GetFiles( "*.*" ).OrderBy( f => f.Name ) )
 			foreach ( var fileInfo in sourceDirectoryInfo.GetFiles( "*.*" ).Take( Limit ) )
 			{
 				try

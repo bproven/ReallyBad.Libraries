@@ -10,7 +10,7 @@
 //     Updated:    05/02/2021 9:39 PM
 // 
 
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 #nullable enable
@@ -21,7 +21,7 @@ namespace ReallyBad.IO
 	public static class DirectoryInfoExtensions
 	{
 
-		public static bool Empty( this DirectoryInfo directoryInfo )
+		public static bool Empty( this IDirectoryInfo directoryInfo )
 			=> !directoryInfo.EnumerateFileSystemInfos().Any();
 
 	}

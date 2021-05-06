@@ -12,7 +12,7 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization;
+using System.IO.Abstractions;
 using System.Runtime.Versioning;
 
 using ReallyBad.Core.Text;
@@ -53,7 +53,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void CtorStringTest()
 		{
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			Assert.Equal( FileName, fileInfo.Name );
 			Assert.Equal( filePath, fileInfo.FullName );
 		}
@@ -61,7 +61,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void CtorFileInfoTest()
 		{
-			var fileInfo = new FileInfoWrapper( new FileInfo( filePath ) );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			Assert.Equal( FileName, fileInfo.Name );
 			Assert.Equal( filePath, fileInfo.FullName );
 		}
@@ -69,7 +69,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void DirectoryTest()
 		{
-			var fileInfo = new FileInfoWrapper( new FileInfo( filePath ) );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			var dirInfo = fileInfo.Directory;
 			Assert.NotNull( dirInfo );
 			Assert.Equal( TestSub, dirInfo?.FullName );
@@ -78,7 +78,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void DirectoryNameTest()
 		{
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			Assert.Equal( TestSub, fileInfo.DirectoryName );
 		}
 
@@ -86,7 +86,7 @@ namespace ReallyBad.IO.Test
 		public void IsReadOnlyTest()
 		{
 
-			var testFileInfo = new FileInfoWrapper( filePath );
+			var testFileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			var checkFileInfo = new FileInfo( filePath );
 
 			Assert.False( testFileInfo.IsReadOnly );
@@ -112,7 +112,7 @@ namespace ReallyBad.IO.Test
 		public void LengthTest()
 		{
 			var fileInfo = new FileInfo( filePath );
-			var fileInfo2 = new FileInfoWrapper( filePath );
+			var fileInfo2 = FileSystem.FileInfo.FromFileName( filePath );
 			Assert.Equal( fileInfo.Length, fileInfo2.Length );
 		}
 
@@ -145,7 +145,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void AppendTest()
 		{
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			WriteLine( fileInfo, Line2 );
 			VerifyContents( filePath, $"{Line1}{Environment.NewLine}{Line2}{Environment.NewLine}" );
 		}
@@ -153,7 +153,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void CopyToTest()
 		{
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			const string fileName2 = "test1.txt";
 			var filePath2 = Path.Combine( TestSub, fileName2 );
 			fileInfo.CopyTo( filePath2 );
@@ -165,10 +165,10 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void CopyToOverwriteTest()
 		{
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			const string fileName2 = "test1.txt";
 			var filePath2 = Path.Combine( TestSub, fileName2 );
-			var fileInfo2 = new FileInfoWrapper( filePath2 );
+			var fileInfo2 = FileSystem.FileInfo.FromFileName( filePath2 );
 			WriteLine( fileInfo2, Line2 );
 			Assert.True( File.Exists( filePath2 ) );
 			VerifyContents( filePath2, Line2 + Environment.NewLine );
@@ -182,7 +182,7 @@ namespace ReallyBad.IO.Test
 		public void CreateTest()
 		{
 			var filePath3 = Path.Combine( TestSub, "test3.txt" );
-			var fileInfo = new FileInfoWrapper( filePath3 );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath3 );
 			using var stream = fileInfo.Create();
 			using var writer = new StreamWriter( stream );
 			writer.WriteLine( Line1 );
@@ -195,7 +195,7 @@ namespace ReallyBad.IO.Test
 		public void CreateTextTest()
 		{
 			var filePath3 = Path.Combine( TestSub, "test4.txt" );
-			var fileInfo = new FileInfoWrapper( filePath3 );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath3 );
 			using var writer = fileInfo.CreateText();
 			writer.WriteLine( Line1 );
 			writer.Flush();
@@ -206,7 +206,7 @@ namespace ReallyBad.IO.Test
 		[SupportedOSPlatform( "windows" )]
 		public void EncryptTest()
 		{
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			fileInfo.Encrypt();
 			var fileInfo2 = new FileInfo( filePath );
 			fileInfo2.Decrypt();
@@ -218,14 +218,14 @@ namespace ReallyBad.IO.Test
 		{
 			var fileInfo = new FileInfo( filePath );
 			fileInfo.Encrypt();
-			var fileInfo2 = new FileInfoWrapper( filePath );
+			var fileInfo2 = FileSystem.FileInfo.FromFileName( filePath );
 			fileInfo2.Decrypt();
 		}
 
 		[Fact]
 		public void MoveToTest()
 		{
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			var fileName2 = "test1.txt";
 			var filePath2 = Path.Combine( TestSub, fileName2 );
 			fileInfo.MoveTo( filePath2 );
@@ -237,10 +237,10 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void MoveToOverwriteTest()
 		{
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			var fileName2 = "test1.txt";
 			var filePath2 = Path.Combine( TestSub, fileName2 );
-			var fileInfo2 = new FileInfoWrapper( filePath2 );
+			var fileInfo2 = FileSystem.FileInfo.FromFileName( filePath2 );
 			WriteLine( fileInfo2, Line2 );
 			Assert.True( File.Exists( filePath2 ) );
 			VerifyContents( filePath2, Line2 + Environment.NewLine );
@@ -250,9 +250,9 @@ namespace ReallyBad.IO.Test
 			VerifyContents( filePath2, Line1 + Environment.NewLine );
 		}
 
-		private void ReadToEndTest( Func<IFileInfo,FileStream> streamFactory )
+		private void ReadToEndTest( Func<IFileInfo,Stream> streamFactory )
 		{
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			using var stream = streamFactory( fileInfo );
 			using var reader = new StreamReader( stream );
 			var content = reader.ReadToEnd();
@@ -286,7 +286,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		private void OpenTextTest()
 		{
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			using var reader = fileInfo.OpenText();
 			var content = reader.ReadToEnd();
 			Assert.Equal( Line1 + Environment.NewLine, content );
@@ -296,7 +296,7 @@ namespace ReallyBad.IO.Test
 		public void OpenWriteTest()
 		{
 			var filePath3 = Path.Combine( TestSub, "test4.txt" );
-			var fileInfo = new FileInfoWrapper( filePath3 );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath3 );
 			using var stream = fileInfo.OpenWrite();
 			using var writer = new StreamWriter( stream );
 			writer.WriteLine( Line1 );
@@ -311,7 +311,7 @@ namespace ReallyBad.IO.Test
 		{
 			string replaceFileName = Path.Combine( TestSub, "test4.txt" );
 			CreateTestFile( replaceFileName, Line2 );
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			fileInfo.Replace( replaceFileName, null );
 			VerifyContents( replaceFileName, Line1 + Environment.NewLine );
 		}
@@ -322,7 +322,7 @@ namespace ReallyBad.IO.Test
 			string replaceFileName = Path.Combine( TestSub, "test4.txt" );
 			string backupFileName = Path.Combine( TestSub, "test4.txt.bak" );
 			CreateTestFile( replaceFileName, Line2 );
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			fileInfo.Replace( replaceFileName, backupFileName );
 			VerifyContents( replaceFileName, Line1 + Environment.NewLine );
 			Assert.True( File.Exists( backupFileName ) );
@@ -335,7 +335,7 @@ namespace ReallyBad.IO.Test
 			string replaceFileName = Path.Combine( TestSub, "test4.txt" );
 			string backupFileName = Path.Combine( TestSub, "test4.txt.bak" );
 			CreateTestFile( replaceFileName, Line2 );
-			var fileInfo = new FileInfoWrapper( filePath );
+			var fileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			fileInfo.Replace( replaceFileName, backupFileName, true );
 			VerifyContents( replaceFileName, Line1 + Environment.NewLine );
 			Assert.True( File.Exists( backupFileName ) );
@@ -345,7 +345,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void RefreshTest()
 		{
-			var testFileInfo = new FileInfoWrapper( filePath );
+			var testFileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			var checkFileInfo = new FileInfo( filePath );
 			FileSystemInfoRefreshTest( testFileInfo, checkFileInfo );
 		}
@@ -353,7 +353,7 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void DateTests()
 		{
-			var testFileInfo = new FileInfoWrapper( filePath );
+			var testFileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			var checkFileInfo = new FileInfo( filePath );
 			Assert.Equal( checkFileInfo.CreationTime, testFileInfo.CreationTime );
 			Assert.Equal( checkFileInfo.CreationTimeUtc, testFileInfo.CreationTimeUtc );
@@ -381,32 +381,22 @@ namespace ReallyBad.IO.Test
 		[Fact]
 		public void ToStringTest()
 		{
-			var testFileInfo = new FileInfoWrapper( filePath );
-			Assert.EndsWith( FileName, testFileInfo.ToString() );
+			var testFileInfo = FileSystem.FileInfo.FromFileName( filePath );
+			Assert.EndsWith( FileName, testFileInfo?.ToString() ?? throw new ArgumentNullException() );
 		}
 
 		[Fact]
 		public void ExtensionTest()
 		{
-			var testFileInfo = new FileInfoWrapper( filePath );
+			var testFileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			Assert.Equal( ".txt", testFileInfo.Extension );
 		}
 
 		[Fact]
 		public void ExistsTest()
 		{
-			var testFileInfo = new FileInfoWrapper( filePath );
+			var testFileInfo = FileSystem.FileInfo.FromFileName( filePath );
 			Assert.True( testFileInfo.Exists );
-		}
-
-		[Fact]
-		public void GetObjectDataTest()
-		{
-			var testFileInfo = new FileInfoWrapper( filePath );
-			var serializationInfo = new SerializationInfo( typeof( FileInfo ), new FormatterConverter() );
-			Assert.Throws<PlatformNotSupportedException>( ()
-				=> testFileInfo.GetObjectData( serializationInfo,
-					new StreamingContext( StreamingContextStates.All ) ) );
 		}
 
 	}

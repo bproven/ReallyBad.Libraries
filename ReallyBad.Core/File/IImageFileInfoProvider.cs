@@ -11,7 +11,7 @@
 // 
 
 using System;
-using System.IO;
+using System.IO.Abstractions;
 
 #nullable enable
 
@@ -23,7 +23,7 @@ namespace ReallyBad.Core.File
 
 		DateTime GetDateTaken( string filePath );
 
-		DateTime GetDateTaken( FileInfo fileInfo );
+		DateTime GetDateTaken( IFileInfo fileInfo );
 
 	}
 

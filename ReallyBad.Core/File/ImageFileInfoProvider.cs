@@ -12,12 +12,12 @@
 
 using System;
 using System.IO;
+using System.IO.Abstractions;
 
 using ExifLib;
 
 using Microsoft.Extensions.Logging;
 
-using ReallyBad.Core.Logging;
 using ReallyBad.Core.Validation;
 
 #nullable enable
@@ -30,9 +30,14 @@ namespace ReallyBad.Core.File
 	public class ImageFileInfoProvider : IImageFileInfoProvider
 	{
 
-		private readonly ILogger<ImageFileInfoProvider> log;
+		private readonly ILogger<ImageFileInfoProvider> _log;
+		private readonly IFileSystem _fileSystem;
 
-		public ImageFileInfoProvider( ILogger<ImageFileInfoProvider> logger ) => log = logger;
+		public ImageFileInfoProvider( ILogger<ImageFileInfoProvider> logger, IFileSystem fileSystem )
+		{
+			_log = logger;
+			_fileSystem = fileSystem;
+		}
 
 		//public ImageFileInfoProvider()
 		//	: this( Logger.CreateLogger<ImageFileInfoProvider>() )
@@ -48,7 +53,7 @@ namespace ReallyBad.Core.File
 		public DateTime GetDateTaken( string filePath )
 		{
 			ArgumentValidator.ValidateNotEmpty( filePath, nameof( filePath ) );
-			return GetDateTaken( new FileInfo( filePath ) );
+			return GetDateTaken( _fileSystem.FileInfo.FromFileName( filePath ) );
 		}
 
 		/// <summary>
@@ -57,7 +62,7 @@ namespace ReallyBad.Core.File
 		/// </summary>
 		/// <param name="fileInfo">The file to retrieve the date taken for.</param>
 		/// <returns>The date taken for the image.</returns>
-		public DateTime GetDateTaken( FileInfo fileInfo )
+		public DateTime GetDateTaken( IFileInfo fileInfo )
 		{
 			using var reader = new ExifReader( fileInfo.FullName );
 
@@ -67,7 +72,7 @@ namespace ReallyBad.Core.File
 			}
 
 			returnDateTime = fileInfo.LastWriteTime;
-			log.LogWarning( $"Image date not found for {fileInfo.FullName}" );
+			_log.LogWarning( $"Image date not found for {fileInfo.FullName}" );
 
 			return returnDateTime;
 		}

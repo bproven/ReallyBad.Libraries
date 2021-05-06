@@ -12,7 +12,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 using Microsoft.Extensions.Logging;
@@ -28,13 +28,18 @@ namespace ReallyBad.IO
 	public class FileSequencer
 	{
 
-		private ILogger<FileSequencer> log;
+		private readonly ILogger<FileSequencer> log;
 
 		public FileSequencer( ILogger<FileSequencer> logger, IImageFileInfoProvider imageFileInfoProvider )
 		{
 			log = logger;
 			ImageFileInfoProvider = imageFileInfoProvider;
+			log.LogDebug( "ctor" );
 		}
+
+		private FileSystem FileSystem { get; } = new();
+
+		private IPath Path => FileSystem.Path;
 
 		private string _dest = string.Empty;
 
@@ -68,20 +73,19 @@ namespace ReallyBad.IO
 
 		public void Sequence()
 		{
-			var sourceDirectoryInfo = new DirectoryInfo( Source );
 
-			var sourceFiles = new List<FileInfo>();
+			log.LogDebug( "Sequence" );
+
+			var sourceDirectoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( Source );
+
+			var sourceFiles = new List<IFileInfo>();
 			sourceFiles.AddRange( sourceDirectoryInfo.GetFiles() );
 
 			var infoList = new List<Info>();
 
 			foreach ( var sourceFile in sourceFiles )
 			{
-				var info = new Info
-				{
-					FileInfo = sourceFile,
-					Taken = ImageFileInfoProvider.GetDateTaken( sourceFile ),
-				};
+				var info = new Info( sourceFile, ImageFileInfoProvider.GetDateTaken( sourceFile ) );
 				infoList.Add( info );
 			}
 
@@ -95,7 +99,7 @@ namespace ReallyBad.IO
 
 			var destDateTime = orderedList.FirstOrDefault()?.Taken ?? DateTime.Now;
 			var destDir = Path.Combine( Dest, $"{destDateTime:yyyy-MM-dd}" );
-			var destDirectoryInfo = new DirectoryInfo( destDir );
+			var destDirectoryInfo = FileSystem.DirectoryInfo.FromDirectoryName( destDir );
 
 			if ( !destDirectoryInfo.Exists )
 			{
@@ -111,12 +115,10 @@ namespace ReallyBad.IO
 				Console.WriteLine( $"{taken:hh:mm:ss.fff}: {src} -> {dest}" );
 				var destPath = Path.Combine( destDir, dest );
 				fileInfo.CopyTo( destPath );
-				var destFileInfo = new FileInfo( destPath )
-				{
-					CreationTime = fileInfo.CreationTime,
-					LastAccessTime = fileInfo.LastAccessTime,
-					LastWriteTime = fileInfo.LastWriteTime,
-				};
+				var destFileInfo = FileSystem.FileInfo.FromFileName( destPath );
+				destFileInfo.CreationTime = fileInfo.CreationTime;
+				destFileInfo.LastAccessTime = fileInfo.LastAccessTime;
+				destFileInfo.LastWriteTime = fileInfo.LastWriteTime;
 				i++;
 			}
 		}
@@ -124,9 +126,15 @@ namespace ReallyBad.IO
 		private class Info
 		{
 
-			public FileInfo FileInfo { get; set; } = new FileInfo( string.Empty );
+			public IFileInfo FileInfo { get; } 
 
-			public DateTime Taken { get; set; }
+			public DateTime Taken { get; }
+
+			public Info( IFileInfo fileInfo, DateTime taken )
+			{
+				FileInfo = fileInfo;
+				Taken = taken;
+			}
 
 		}
 

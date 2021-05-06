@@ -1,5 +1,5 @@
 using System;
-using System.IO;
+using System.IO.Abstractions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,6 +17,7 @@ namespace ReallyBad.IO.Test
 
 		private readonly IServiceProvider serviceProvider;
 		private readonly FileOrganizer fileOrganizer;
+		private readonly IFileSystem fileSystem;
 
 		public FileOrganizerTests()
 		{
@@ -33,12 +34,16 @@ namespace ReallyBad.IO.Test
 							options.TimestampFormat = "yyyy-MM-dd";
 						} );
 				})
+				.AddTransient<IFileSystem,FileSystem>()
 				.AddTransient<FileOrganizer>()
 				.AddTransient<IImageFileInfoProvider,ImageFileInfoProvider>()
 				.BuildServiceProvider();
 
 			fileOrganizer = serviceProvider
 				.GetService<FileOrganizer>();
+
+			fileSystem = serviceProvider
+				.GetService<IFileSystem>();
 
 		}
 
@@ -61,7 +66,7 @@ namespace ReallyBad.IO.Test
 			var root = @"C:\Root";
 			var sub = @"Sub1\Sub2";
 			var subFolder = root + @"\" + sub;
-			var relative = FileOrganizer.GetRelativePath( subFolder, root );
+			var relative = fileOrganizer.GetRelativePath( subFolder, root );
 			Assert.Equal( sub, relative );
 		}
 
@@ -74,7 +79,7 @@ namespace ReallyBad.IO.Test
 			var fileText = "file.txt";
 			var backslash = @"\";
 			var expected = dest + backslash + formatted + backslash + fileText;
-			var destinationPath = FileOrganizer.GetDestinationPath( fileText, dest, formatted );
+			var destinationPath = fileOrganizer.GetDestinationPath( fileText, dest, formatted );
 			Assert.Equal( expected, destinationPath );
 		}
 
@@ -88,7 +93,7 @@ namespace ReallyBad.IO.Test
 			const string fileText = "file.txt";
 			const string file = source + backslash + fileText;
 
-			var fileInfo = new FileInfo( file );
+			var fileInfo = fileSystem.FileInfo.FromFileName( file );
 
 			fileOrganizer.SourceRootDirectory = source;
 			fileOrganizer.DestRootDirectory = dest;
@@ -104,7 +109,7 @@ namespace ReallyBad.IO.Test
 			var destSub = dest + sub;
 			var fileSub = sourceSub + backslash + fileText;
 
-			var fileInfoSub = new FileInfo( fileSub );
+			var fileInfoSub = fileSystem.FileInfo.FromFileName( fileSub );
 
 			var fileOrganizerSub = serviceProvider
 				.GetService<FileOrganizer>();
@@ -126,7 +131,7 @@ namespace ReallyBad.IO.Test
 			var destSub2 = dest + sub + "1" + sub + "2";
 			var fileSub2 = sourceSub2 + backslash + fileText;
 
-			var fileInfoSub2 = new FileInfo( fileSub2 );
+			var fileInfoSub2 = fileSystem.FileInfo.FromFileName( fileSub2 );
 
 			var fileOrganizerSub2 = serviceProvider
 				.GetService<FileOrganizer>();
@@ -147,7 +152,7 @@ namespace ReallyBad.IO.Test
 			var destSub3 = dest + sub + "1" + sub + "2";
 			var fileSub3 = sourceSub3 + backslash + fileText;
 
-			var fileInfoSub3 = new FileInfo( fileSub3 );
+			var fileInfoSub3 = fileSystem.FileInfo.FromFileName( fileSub3 );
 
 			var fileOrganizerSub3 = serviceProvider
 				.GetService<FileOrganizer>();

@@ -12,6 +12,9 @@
 
 using System;
 using System.IO;
+using System.IO.Abstractions;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using Xunit;
 
@@ -37,6 +40,8 @@ namespace ReallyBad.IO.Test
 		protected readonly string TestPath;
 		protected readonly string TestSub;
 
+		protected readonly IFileSystem FileSystem;
+
 		private FileInfo CreateFile( DirectoryInfo dirInfo, string fileName, string? contents = null ) 
 			=> CreateFile( dirInfo.FullName, fileName, contents );
 
@@ -57,6 +62,16 @@ namespace ReallyBad.IO.Test
 
 		public FileSystemInfoWrapperTests()
 		{
+
+			var container = new ServiceCollection();
+
+			container
+				.AddSingleton<IFileSystem, FileSystem>();
+
+			var provider = container
+				.BuildServiceProvider();
+
+			FileSystem = provider.GetService<IFileSystem>() ?? throw new InvalidOperationException( "Resolve failed" );
 
 			var rootDir = new DirectoryInfo( Root );
 
@@ -86,10 +101,10 @@ namespace ReallyBad.IO.Test
 
 		public void Dispose()
 		{
-			System.IO.Directory.Delete( TestPath, true );
+			Directory.Delete( TestPath, true );
 		}
 
-		protected void FileSystemInfoRefreshTest( FileSystemInfoWrapper testFileSystemInfo, FileSystemInfo checkFileSystemInfo )
+		protected void FileSystemInfoRefreshTest( IFileSystemInfo testFileSystemInfo, FileSystemInfo checkFileSystemInfo )
 		{
 
 			// load the attributes
@@ -128,19 +143,6 @@ namespace ReallyBad.IO.Test
 
 		}
 
-		public class BadFileInfo : FileSystemInfo
-		{
-			public override void Delete() => throw new NotImplementedException(); 
-			public override bool Exists => throw new NotImplementedException();
-			public override string Name => throw new NotImplementedException();
-		}
-
-		[Fact]
-		public void CreateFileSystemInfoTest()
-		{
-			Assert.Throws<ArgumentException>( () => FileSystemInfoWrapper.Create( new BadFileInfo() ) );
-		}
-		
 	}
 
 }
