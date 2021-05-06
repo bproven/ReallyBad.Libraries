@@ -34,10 +34,10 @@ namespace ReallyBad.Core.File
 
 		public ImageFileInfoProvider( ILogger<ImageFileInfoProvider> logger ) => log = logger;
 
-		public ImageFileInfoProvider()
-			: this( Logger.CreateLogger<ImageFileInfoProvider>() )
-		{
-		}
+		//public ImageFileInfoProvider()
+		//	: this( Logger.CreateLogger<ImageFileInfoProvider>() )
+		//{
+		//}
 
 		/// <summary>
 		/// Gets the Date Taken from the file specified by fileInfo.  If the image does not contain a date taken, returns the
@@ -47,7 +47,7 @@ namespace ReallyBad.Core.File
 		/// <returns>The date taken for the image.</returns>
 		public DateTime GetDateTaken( string filePath )
 		{
-			Validator.ValidateNotEmpty( filePath, nameof( filePath ) );
+			ArgumentValidator.ValidateNotEmpty( filePath, nameof( filePath ) );
 			return GetDateTaken( new FileInfo( filePath ) );
 		}
 

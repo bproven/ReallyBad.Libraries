@@ -18,8 +18,9 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 
 using ReallyBad.Core.File;
-using ReallyBad.Core.Logging;
 using ReallyBad.Core.Validation;
+
+#nullable enable
 
 namespace ReallyBad.IO
 {
@@ -29,20 +30,19 @@ namespace ReallyBad.IO
 
 		private ILogger<FileSequencer> log;
 
-		public FileSequencer()
-			: this( Logger.CreateLogger<FileSequencer>() )
+		public FileSequencer( ILogger<FileSequencer> logger, IImageFileInfoProvider imageFileInfoProvider )
 		{
+			log = logger;
+			ImageFileInfoProvider = imageFileInfoProvider;
 		}
-
-		public FileSequencer( ILogger<FileSequencer> logger ) => log = logger;
 
 		private string _dest = string.Empty;
 
 		private string _prefix = "IMGS";
 
-		public IImageFileInfoProvider ImageFileInfoProvider { get; set; } = new ImageFileInfoProvider();
+		public IImageFileInfoProvider ImageFileInfoProvider { get; set; }
 
-		public string Source { get; set; }
+		public string Source { get; set; } = string.Empty;
 
 		public string Dest
 		{
@@ -50,7 +50,7 @@ namespace ReallyBad.IO
 
 			set
 			{
-				Validator.ValidateNotEmpty( value, nameof( value ) );
+				ArgumentValidator.ValidateNotEmpty( value, nameof( value ) );
 				_dest = value;
 			}
 		}
@@ -61,7 +61,7 @@ namespace ReallyBad.IO
 
 			set
 			{
-				Validator.ValidateNotEmpty( value, nameof( value ) );
+				ArgumentValidator.ValidateNotEmpty( value, nameof( value ) );
 				_prefix = value;
 			}
 		}
@@ -124,7 +124,7 @@ namespace ReallyBad.IO
 		private class Info
 		{
 
-			public FileInfo FileInfo { get; set; }
+			public FileInfo FileInfo { get; set; } = new FileInfo( string.Empty );
 
 			public DateTime Taken { get; set; }
 

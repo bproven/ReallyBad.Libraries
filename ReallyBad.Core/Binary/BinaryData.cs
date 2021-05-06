@@ -29,14 +29,14 @@ namespace ReallyBad.Core.Binary
 
 		public BinaryData( string text, Encoding encoding )
 		{
-			Validator.ValidateNotEmpty( text, nameof( text ) );
+			ArgumentValidator.ValidateNotEmpty( text, nameof( text ) );
 			Encoding = encoding;
 			Data = Encoding.GetBytes( text );
 		}
 
 		public BinaryData( string text )
 		{
-			Validator.ValidateNotEmpty( text, nameof( text ) );
+			ArgumentValidator.ValidateNotEmpty( text, nameof( text ) );
 			Data = Convert.FromBase64String( text );
 		}
 

@@ -78,7 +78,7 @@ namespace ReallyBad.Core.Reflection
 		public static T FromValue<T>( this string enumMemberValue )
 			where T : struct, Enum, IConvertible
 		{
-			Validator.ValidateNotEmpty( enumMemberValue, nameof( enumMemberValue ) );
+			ArgumentValidator.ValidateNotEmpty( enumMemberValue, nameof( enumMemberValue ) );
 
 			var t = typeof( T );
 			var enumValues = t.GetEnumValues();

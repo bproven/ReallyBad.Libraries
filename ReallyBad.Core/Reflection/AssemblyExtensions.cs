@@ -42,7 +42,7 @@ namespace ReallyBad.Core.Reflection
 
 		public static string GetResource( this Assembly assembly, string nameSpace, string resourceName )
 		{
-			Validator.ValidateNotEmpty( resourceName, nameof( resourceName ) );
+			ArgumentValidator.ValidateNotEmpty( resourceName, nameof( resourceName ) );
 
 			return assembly.GetResource( GetResourceName( assembly, nameSpace, resourceName ) );
 		}
@@ -67,7 +67,7 @@ namespace ReallyBad.Core.Reflection
 		{
 			static bool CheckExtension( string fileName, IEnumerable<string>? extensions )
 			{
-				Validator.ValidateNotEmpty( fileName, nameof( fileName ) );
+				ArgumentValidator.ValidateNotEmpty( fileName, nameof( fileName ) );
 
 				var extensionList = extensions?.ToList() ?? new List<string>();
 				var count = extensionList.Count;

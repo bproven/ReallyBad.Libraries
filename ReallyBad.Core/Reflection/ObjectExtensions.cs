@@ -36,26 +36,26 @@ namespace ReallyBad.Core.Reflection
 		public static object? GetPropertyValueObject( this object item, string propertyName,
 			object? defaultValue )
 		{
-			Validator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
+			ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
 			return item.GetType().GetProperty( propertyName )?.GetValue( item ) ?? defaultValue;
 		}
 
 		public static T? GetPropertyValue<T>( this object item, string propertyName, T? defaultValue )
 		{
-			Validator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
+			ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
 			return (T?)item.GetPropertyValueObject( propertyName, defaultValue );
 		}
 
 		public static T? GetPropertyValue<T>( this object item, string propertyName )
 		{
-			Validator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
+			ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
 			return item.GetPropertyValue( propertyName, default( T ) );
 		}
 
 		public static bool SetPropertyValue( this object item, string propertyName, object? value,
 			bool throwIfNotFound = true )
 		{
-			Validator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
+			ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
 			var propertyInfo = item.GetType().GetProperty( propertyName );
 			var result = false;
 
@@ -106,7 +106,7 @@ namespace ReallyBad.Core.Reflection
 
 		public static object? GetGenericPropertyValueByType( this object item, Type genericType, params Type[] types )
 		{
-			Validator.ValidateNotEmpty( types, nameof( types ) );
+			ArgumentValidator.ValidateNotEmpty( types, nameof( types ) );
 			return item.GetGenericPropertyValueByType( genericType, (ICollection<Type>)types );
 		}
 

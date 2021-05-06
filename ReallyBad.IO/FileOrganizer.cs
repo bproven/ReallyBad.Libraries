@@ -18,7 +18,6 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 
 using ReallyBad.Core.File;
-using ReallyBad.Core.Logging;
 using ReallyBad.Core.Text;
 using ReallyBad.Core.Validation;
 
@@ -32,7 +31,7 @@ namespace ReallyBad.IO
 
 		private readonly ILogger<FileOrganizer> log;
 
-		private string _pathFormat = @"yyyy\\MM\\dd";
+		private string _pathFormat = "yyyy-MM-dd";
 
 		private int errorCount;
 
@@ -42,9 +41,11 @@ namespace ReallyBad.IO
 
 		private int totalCount;
 
-		public FileOrganizer( ILogger<FileOrganizer> logger ) => log = logger;
-
-		public FileOrganizer() => log = Logger.CreateLogger<FileOrganizer>();
+		public FileOrganizer( ILogger<FileOrganizer> logger, IImageFileInfoProvider imageFileInfoProvider )
+		{
+			log = logger;
+			ImageFileInfoProvider = imageFileInfoProvider;
+		}
 
 		public string SourceRootDirectory { get; set; } = string.Empty;
 
@@ -56,7 +57,7 @@ namespace ReallyBad.IO
 
 			set
 			{
-				Validator.ValidateNotEmpty( value, nameof( value ) );
+				ArgumentValidator.ValidateNotEmpty( value, nameof( value ) );
 				_pathFormat = value;
 			}
 		}
@@ -75,7 +76,7 @@ namespace ReallyBad.IO
 
 		public int Limit { get; set; } = 8000;
 
-		public IImageFileInfoProvider ImageFileInfoProvider { get; set; } = new ImageFileInfoProvider();
+		public IImageFileInfoProvider ImageFileInfoProvider { get; set; }
 
 		public void Organize()
 		{
@@ -91,7 +92,7 @@ namespace ReallyBad.IO
 
 		private void Log( string message )
 		{
-			Validator.ValidateNotEmpty( message, nameof( message ) );
+			ArgumentValidator.ValidateNotEmpty( message, nameof( message ) );
 
 			if ( IsVerbose )
 			{
@@ -101,8 +102,8 @@ namespace ReallyBad.IO
 
 		public static bool DateFormatDirectory( string directoryName, string pathFormat )
 		{
-			Validator.ValidateNotEmpty( directoryName, nameof( directoryName ) );
-			Validator.ValidateNotEmpty( pathFormat, nameof( pathFormat ) );
+			ArgumentValidator.ValidateNotEmpty( directoryName, nameof( directoryName ) );
+			ArgumentValidator.ValidateNotEmpty( pathFormat, nameof( pathFormat ) );
 
 			return DateTime.TryParseExact( directoryName, pathFormat, CultureInfo.CurrentCulture,
 				DateTimeStyles.AssumeLocal, out var _ );
@@ -115,7 +116,7 @@ namespace ReallyBad.IO
 		/// <returns>Boolean indicating whether the past in value is in date format.</returns>
 		public bool DateFormatDirectory( string directoryName )
 		{
-			Validator.ValidateNotEmpty( directoryName, nameof( directoryName ) );
+			ArgumentValidator.ValidateNotEmpty( directoryName, nameof( directoryName ) );
 
 			return DateFormatDirectory( directoryName, PathFormat );
 		}
@@ -171,9 +172,9 @@ namespace ReallyBad.IO
 		public static string GetDestinationPath( string sourceFileName, string destinationParentDirectory,
 			string destinationRelativePath )
 		{
-			Validator.ValidateNotEmpty( sourceFileName, nameof( sourceFileName ) );
-			Validator.ValidateNotEmpty( destinationParentDirectory, nameof( destinationParentDirectory ) );
-			Validator.ValidateNotEmpty( destinationRelativePath, nameof( destinationRelativePath ) );
+			ArgumentValidator.ValidateNotEmpty( sourceFileName, nameof( sourceFileName ) );
+			ArgumentValidator.ValidateNotEmpty( destinationParentDirectory, nameof( destinationParentDirectory ) );
+			ArgumentValidator.ValidateNotEmpty( destinationRelativePath, nameof( destinationRelativePath ) );
 
 			return Path.Combine( Path.Combine( destinationParentDirectory, destinationRelativePath ), sourceFileName );
 		}
@@ -181,9 +182,9 @@ namespace ReallyBad.IO
 		public static FileInfo GetDestinationFileInfo( string sourceFileName, string destinationParentDirectory,
 			string destinationRelativePath )
 		{
-			Validator.ValidateNotEmpty( sourceFileName, nameof( sourceFileName ) );
-			Validator.ValidateNotEmpty( destinationParentDirectory, nameof( destinationParentDirectory ) );
-			Validator.ValidateNotEmpty( destinationRelativePath, nameof( destinationRelativePath ) );
+			ArgumentValidator.ValidateNotEmpty( sourceFileName, nameof( sourceFileName ) );
+			ArgumentValidator.ValidateNotEmpty( destinationParentDirectory, nameof( destinationParentDirectory ) );
+			ArgumentValidator.ValidateNotEmpty( destinationRelativePath, nameof( destinationRelativePath ) );
 			var destFullPath =
 				GetDestinationPath( sourceFileName, destinationParentDirectory, destinationRelativePath );
 
@@ -193,15 +194,15 @@ namespace ReallyBad.IO
 		public static FileInfo GetDestinationFileInfo( FileInfo sourceFileInfo, string destinationParentDirectory,
 			string destinationRelativePath )
 		{
-			Validator.ValidateNotEmpty( destinationParentDirectory, nameof( destinationParentDirectory ) );
-			Validator.ValidateNotEmpty( destinationRelativePath, nameof( destinationRelativePath ) );
+			ArgumentValidator.ValidateNotEmpty( destinationParentDirectory, nameof( destinationParentDirectory ) );
+			ArgumentValidator.ValidateNotEmpty( destinationRelativePath, nameof( destinationRelativePath ) );
 
 			return GetDestinationFileInfo( sourceFileInfo.Name, destinationParentDirectory, destinationRelativePath );
 		}
 
 		public FileInfo GetDestinationFileInfo( FileInfo sourceFileInfo, string destinationRelativePath )
 		{
-			Validator.ValidateNotEmpty( destinationRelativePath, nameof( destinationRelativePath ) );
+			ArgumentValidator.ValidateNotEmpty( destinationRelativePath, nameof( destinationRelativePath ) );
 			var destinationParentDirectory = GetDestinationParentDirectory( sourceFileInfo );
 
 			return GetDestinationFileInfo( sourceFileInfo, destinationParentDirectory, destinationRelativePath );

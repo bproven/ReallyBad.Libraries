@@ -30,73 +30,73 @@ namespace ReallyBad.Core.Test.Validation
 		[Fact]
 		public void ValidateNullObjectEmptyTest()
 		{
-			Assert.Throws<ArgumentNullException>( () => Validator.ValidateNotEmpty( null, Name ) );
+			Assert.Throws<ArgumentNullException>( () => ArgumentValidator.ValidateNotEmpty( null, Name ) );
 		}
 
 		[Fact]
 		public void ValidateObjectNotEmptyTest()
 		{
-			Validator.ValidateNotEmpty( new object(), Name );
+			ArgumentValidator.ValidateNotEmpty( new object(), Name );
 		}
 
 		[Fact]
 		public void ValidateEmptyStringEmptyTest()
 		{
-			Assert.Throws<ArgumentNullException>( () => Validator.ValidateNotEmpty( string.Empty, Name ) );
+			Assert.Throws<ArgumentNullException>( () => ArgumentValidator.ValidateNotEmpty( string.Empty, Name ) );
 		}
 
 		[Fact]
 		public void ValidateStringNotEmptyTest()
 		{
-			Validator.ValidateNotEmpty( "a string", Name );
+			ArgumentValidator.ValidateNotEmpty( "a string", Name );
 		}
 
 		[Fact]
 		public void ValidateEmptyListEmptyTest()
 		{
-			Assert.Throws<ArgumentNullException>( () => Validator.ValidateNotEmpty( new List<int>(), Name ) );
+			Assert.Throws<ArgumentNullException>( () => ArgumentValidator.ValidateNotEmpty( new List<int>(), Name ) );
 		}
 
 		[Fact]
 		public void ValidateListNotEmptyTest()
 		{
-			Validator.ValidateNotEmpty( new List<int> { 1, }, Name );
+			ArgumentValidator.ValidateNotEmpty( new List<int> { 1, }, Name );
 		}
 
 		[Fact]
 		public void ValidateEmptyArrayEmptyTest()
 		{
-			Assert.Throws<ArgumentNullException>( () => Validator.ValidateNotEmpty( Array.Empty<float>(), Name ) );
+			Assert.Throws<ArgumentNullException>( () => ArgumentValidator.ValidateNotEmpty( Array.Empty<float>(), Name ) );
 		}
 
 		[Fact]
 		public void ValidateArrayNotEmptyTest()
 		{
-			Validator.ValidateNotEmpty( new float[ 1 ], Name );
+			ArgumentValidator.ValidateNotEmpty( new float[ 1 ], Name );
 		}
 
 		[Fact]
 		public void ValidateEmptyGuidEmptyTest()
 		{
-			Assert.Throws<ArgumentNullException>( () => Validator.ValidateNotEmpty( Guid.Empty, Name ) );
+			Assert.Throws<ArgumentNullException>( () => ArgumentValidator.ValidateNotEmpty( Guid.Empty, Name ) );
 		}
 
 		[Fact]
 		public void ValidateGuidNotEmptyTest()
 		{
-			Validator.ValidateNotEmpty( Guid.NewGuid(), Name );
+			ArgumentValidator.ValidateNotEmpty( Guid.NewGuid(), Name );
 		}
 
 		[Fact]
 		public void ValidateEmptyDateEmptyTest()
 		{
-			Assert.Throws<ArgumentNullException>( () => Validator.ValidateNotEmpty( new DateTime(), Name ) );
+			Assert.Throws<ArgumentNullException>( () => ArgumentValidator.ValidateNotEmpty( new DateTime(), Name ) );
 		}
 
 		[Fact]
 		public void ValidateDateNotEmptyTest()
 		{
-			Validator.ValidateNotEmpty( new DateTime( 2021, 5, 2 ), Name );
+			ArgumentValidator.ValidateNotEmpty( new DateTime( 2021, 5, 2 ), Name );
 		}
 
 	}

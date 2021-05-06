@@ -28,11 +28,6 @@ namespace ReallyBad.Core.Conversion
 
 		private readonly ILogger<StringTypeConverter> log;
 
-		public StringTypeConverter()
-			: this( Logger.CreateLogger<StringTypeConverter>() )
-		{
-		}
-
 		public StringTypeConverter( ILogger<StringTypeConverter> logger ) => log = logger;
 
 		/// <summary>

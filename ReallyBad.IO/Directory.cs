@@ -38,7 +38,7 @@ namespace ReallyBad.IO
 
 		public Directory( string path )
 		{
-			Validator.ValidateNotEmpty( path, nameof( path ) );
+			ArgumentValidator.ValidateNotEmpty( path, nameof( path ) );
 			Path = path;
 		}
 
@@ -48,7 +48,7 @@ namespace ReallyBad.IO
 
 			init
 			{
-				Validator.ValidateNotEmpty( value, nameof( value ) );
+				ArgumentValidator.ValidateNotEmpty( value, nameof( value ) );
 				_path = value;
 			}
 		}

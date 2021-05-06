@@ -21,7 +21,7 @@ using ReallyBad.Core.Text;
 namespace ReallyBad.Core.Validation
 {
 
-	public class Validator
+	public class ArgumentValidator
 	{
 
 		private static readonly DateTime emptyDateTime = new();

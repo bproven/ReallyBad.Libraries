@@ -12,7 +12,7 @@ namespace ReallyBad.Core.Logging
 
 		public static ILogger CreateLogger( string name, LogLevel level = LogLevel.Debug )
 		{
-			Validator.ValidateNotEmpty( name, nameof( name ) );
+			ArgumentValidator.ValidateNotEmpty( name, nameof( name ) );
 			using var loggerFactory = LoggerFactory.Create( builder =>
 			{
 				builder
@@ -25,12 +25,6 @@ namespace ReallyBad.Core.Logging
 #endif
 			} );
 			return loggerFactory.CreateLogger( name );
-		}
-
-		public static ILogger<T> CreateLogger<T>( LogLevel level = LogLevel.Debug )
-		{
-			var name = typeof( T ).FullName ?? string.Empty;
-			return (ILogger<T>)CreateLogger( name, level );
 		}
 
 	}
