@@ -19,6 +19,8 @@ namespace ReallyBad.IO.Test
 		private readonly FileOrganizer fileOrganizer;
 		private readonly IFileSystem fileSystem;
 
+		public FileOrganizer GetFileOrganizer() => serviceProvider.GetService<FileOrganizer>();
+
 		public FileOrganizerTests()
 		{
 
@@ -36,7 +38,7 @@ namespace ReallyBad.IO.Test
 				})
 				.AddTransient<IFileSystem,FileSystem>()
 				.AddTransient<FileOrganizer>()
-				.AddTransient<IImageFileInfoProvider,ImageFileInfoProvider>()
+				.AddTransient<IImageFileInfoProvider,MockImageFileInfoProvider>()
 				.BuildServiceProvider();
 
 			fileOrganizer = serviceProvider
@@ -51,6 +53,7 @@ namespace ReallyBad.IO.Test
 		public void DateFormatDirectoryTest()
 		{
 			Assert.True( FileOrganizer.DateFormatDirectory( "2018-12-31", "yyyy-MM-dd" ) );
+			Assert.True( FileOrganizer.DateFormatDirectory( "18-12-31", "yy-MM-dd" ) );
 			Assert.False( FileOrganizer.DateFormatDirectory( "201-12-31", "yyyy-MM-dd" ) );
 			Assert.False( FileOrganizer.DateFormatDirectory( "201x-12-31", "yyyy-MM-dd" ) );
 			Assert.NotNull( fileOrganizer );
@@ -111,8 +114,7 @@ namespace ReallyBad.IO.Test
 
 			var fileInfoSub = fileSystem.FileInfo.FromFileName( fileSub );
 
-			var fileOrganizerSub = serviceProvider
-				.GetService<FileOrganizer>();
+			var fileOrganizerSub = GetFileOrganizer();
 
 			Assert.NotNull( fileOrganizerSub );
 
@@ -133,8 +135,7 @@ namespace ReallyBad.IO.Test
 
 			var fileInfoSub2 = fileSystem.FileInfo.FromFileName( fileSub2 );
 
-			var fileOrganizerSub2 = serviceProvider
-				.GetService<FileOrganizer>();
+			var fileOrganizerSub2 = GetFileOrganizer();
 
 			Assert.NotNull( fileOrganizerSub2 );
 
@@ -154,15 +155,13 @@ namespace ReallyBad.IO.Test
 
 			var fileInfoSub3 = fileSystem.FileInfo.FromFileName( fileSub3 );
 
-			var fileOrganizerSub3 = serviceProvider
-				.GetService<FileOrganizer>();
+			var fileOrganizerSub3 = GetFileOrganizer();
 
 			Assert.NotNull( fileOrganizerSub3 );
 
 			fileOrganizerSub3.SourceRootDirectory = source;
 			fileOrganizerSub3.DestRootDirectory = dest;
 			fileOrganizerSub3.IsPreserveTree = true;
-			fileOrganizerSub3.ImageFileInfoProvider = new MockImageFileInfoProvider();
 
 			var destSubParent3 = fileOrganizerSub3.GetDestinationParentDirectory( fileInfoSub3 );
 

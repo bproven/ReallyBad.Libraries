@@ -11,6 +11,7 @@
 // 
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO.Abstractions;
 using System.Linq;
@@ -80,7 +81,7 @@ namespace ReallyBad.IO
 
 		public int Limit { get; set; } = 8000;
 
-		public IImageFileInfoProvider ImageFileInfoProvider { get; set; }
+		private IImageFileInfoProvider ImageFileInfoProvider { get; }
 
 		public void Organize()
 		{
@@ -94,6 +95,7 @@ namespace ReallyBad.IO
 			}
 		}
 
+		[ExcludeFromCodeCoverage]
 		private void Log( string message )
 		{
 			ArgumentValidator.ValidateNotEmpty( message, nameof( message ) );
