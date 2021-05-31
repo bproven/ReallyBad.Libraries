@@ -6,8 +6,8 @@
 //     Project:    ReallyBad.Core
 //     File:       ByteArrayExtensions.cs
 // 
-//     Created:    04/29/2020 5:05 PM
-//     Updated:    05/02/2021 1:19 AM
+//     Created:    09/14/2004 9:14 AM
+//     Updated:    05/06/2021 10:57 PM
 // 
 
 using System;
@@ -18,43 +18,46 @@ using System.Text;
 namespace ReallyBad.Core.Binary
 {
 
-	public static class ByteArrayExtensions
-	{
+    public static class ByteArrayExtensions
+    {
 
-		public static string GetEncoded( this byte[] bytes, Encoding encoding )
-			=> encoding.GetString( bytes );
+        public static string GetEncoded( this byte[] bytes, Encoding encoding )
+            => encoding.GetString( bytes );
 
-		public static string GetBase64( this byte[] bytes )
-			=> bytes.Length > 0 ? Convert.ToBase64String( bytes ) : string.Empty;
+        public static string GetBase64( this byte[] bytes )
+            => bytes.Length > 0 ? Convert.ToBase64String( bytes ) : string.Empty;
 
-		public static bool ValueEquals( this byte[]? bytes, byte[]? other )
-		{
-			var result = bytes == other;
-			if ( result )
-			{
-				return true;
-			}
+        public static bool ValueEquals( this byte[]? bytes, byte[]? other )
+        {
+            var result = bytes == other;
 
-			if ( bytes == null || other == null )
-			{
-				return false;
-			}
+            if ( result )
+            {
+                return true;
+            }
 
-			if ( bytes.Length != other.Length )
-			{
-				return false;
-			}
+            if ( bytes == null || other == null )
+            {
+                return false;
+            }
 
-			var compare = true;
-			for ( var i = 0; compare && i < bytes.Length; i++ )
-			{
-				compare = bytes[ i ] == other[ i ];
-			}
+            if ( bytes.Length != other.Length )
+            {
+                return false;
+            }
 
-			result = compare;
-			return result;
-		}
+            var compare = true;
 
-	}
+            for ( var i = 0; compare && i < bytes.Length; i++ )
+            {
+                compare = bytes[ i ] == other[ i ];
+            }
+
+            result = compare;
+
+            return result;
+        }
+
+    }
 
 }

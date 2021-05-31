@@ -6,8 +6,8 @@
 //     Project:    ReallyBad.Core
 //     File:       IImageFileInfoProvider.cs
 // 
-//     Created:    04/29/2020 5:05 PM
-//     Updated:    05/02/2021 7:43 PM
+//     Created:    09/14/2004 9:14 AM
+//     Updated:    05/06/2021 10:58 PM
 // 
 
 using System;
@@ -18,13 +18,13 @@ using System.IO.Abstractions;
 namespace ReallyBad.Core.File
 {
 
-	public interface IImageFileInfoProvider
-	{
+    public interface IImageFileInfoProvider
+    {
 
-		DateTime GetDateTaken( string filePath );
+        DateTime GetDateTaken( string filePath );
 
-		DateTime GetDateTaken( IFileInfo fileInfo );
+        DateTime GetDateTaken( IFileInfo fileInfo );
 
-	}
+    }
 
 }

@@ -1,9 +1,23 @@
+// 
+//     Created By: Bob Provencher
+//     User Name:  bob
+// 
+//     Solution:   ReallyBad.Libraries
+//     Project:    ReallyBad.Core.Test
+//     File:       ByteArrayTests.cs
+// 
+//     Created:    09/14/2004 9:14 AM
+//     Updated:    05/06/2021 11:00 PM
+// 
+
 using System;
 using System.Text;
 
+using ReallyBad.Core.Binary;
+
 using Xunit;
 
-using ReallyBad.Core.Binary;
+// ReSharper disable ExpressionIsAlwaysNull
 
 namespace ReallyBad.Core.Test.Binary
 {
@@ -14,40 +28,40 @@ namespace ReallyBad.Core.Test.Binary
         [Fact]
         public void ByteArrayValueEqualsTest()
         {
-            byte[] array1 = { 0, 1, 2, 3 };
-            byte[] array2 = { 0, 1, 2, 3 };
+            byte[] array1 = { 0, 1, 2, 3, };
+            byte[] array2 = { 0, 1, 2, 3, };
             Assert.True( array1.ValueEquals( array2 ) );
         }
 
         [Fact]
         public void ByteArrayValueNotEqualsTest()
         {
-            byte[] array1 = { 0, 1, 2, 3 };
-            byte[] array2 = { 0, 1, 1, 3 };
+            byte[] array1 = { 0, 1, 2, 3, };
+            byte[] array2 = { 0, 1, 1, 3, };
             Assert.False( array1.ValueEquals( array2 ) );
         }
 
         [Fact]
         public void ByteArrayLengthNotEqualsTest1()
         {
-            byte[] array1 = { 0, 1, 2, 3 };
-            byte[] array2 = { 0, 1, 2 };
+            byte[] array1 = { 0, 1, 2, 3, };
+            byte[] array2 = { 0, 1, 2, };
             Assert.False( array1.ValueEquals( array2 ) );
         }
 
         [Fact]
         public void ByteArrayLengthNotEqualsTest2()
         {
-            byte[] array1 = { 0, 1, 2 };
-            byte[] array2 = { 0, 1, 2, 3 };
+            byte[] array1 = { 0, 1, 2, };
+            byte[] array2 = { 0, 1, 2, 3, };
             Assert.False( array1.ValueEquals( array2 ) );
         }
 
         [Fact]
         public void ByteArrayRefEqualsTest()
         {
-            byte[] array1 = { 0, 1, 2, 3 };
-            byte[] array2 = array1;
+            byte[] array1 = { 0, 1, 2, 3, };
+            var array2 = array1;
             Assert.True( array1.ValueEquals( array2 ) );
         }
 
@@ -62,7 +76,7 @@ namespace ReallyBad.Core.Test.Binary
         [Fact]
         public void ByteArrayOneNullNotEqualsTest1()
         {
-            byte[] array1 = { 0, 1, 2, 3 };
+            byte[] array1 = { 0, 1, 2, 3, };
             byte[] array2 = null;
             Assert.False( array1.ValueEquals( array2 ) );
         }
@@ -71,7 +85,7 @@ namespace ReallyBad.Core.Test.Binary
         public void ByteArrayOneNullNotEqualsTest2()
         {
             byte[] array1 = null;
-            byte[] array2 = { 0, 1, 2, 3 };
+            byte[] array2 = { 0, 1, 2, 3, };
             Assert.False( array1.ValueEquals( array2 ) );
         }
 
@@ -86,7 +100,7 @@ namespace ReallyBad.Core.Test.Binary
         [Fact]
         public void ByteArrayOneEmptyNotEqualsTest1()
         {
-            byte[] array1 = { 0, 1, 2, 3 };
+            byte[] array1 = { 0, 1, 2, 3, };
             byte[] array2 = { };
             Assert.False( array1.ValueEquals( array2 ) );
         }
@@ -95,29 +109,29 @@ namespace ReallyBad.Core.Test.Binary
         public void ByteArrayOneEmptyNotEqualsTest2()
         {
             byte[] array1 = { };
-            byte[] array2 = { 0, 1, 2, 3 };
+            byte[] array2 = { 0, 1, 2, 3, };
             Assert.False( array1.ValueEquals( array2 ) );
         }
 
         [Fact]
         public void UTF8EncodeDecodeTest()
         {
-            string expected = "test";
-            Encoding encoding = Encoding.UTF8;
-            byte[] bytes = encoding.GetBytes( expected );
-            string result = bytes.GetEncoded( encoding );
+            var expected = "test";
+            var encoding = Encoding.UTF8;
+            var bytes = encoding.GetBytes( expected );
+            var result = bytes.GetEncoded( encoding );
             Assert.Equal( expected, result );
         }
 
         [Fact]
         public void Base64EncodeDecodeTest()
         {
-            string value = "test";
-            Encoding encoding = Encoding.UTF8;
-            byte[] bytes = encoding.GetBytes(value);
-            string base64 = bytes.GetBase64();
-            byte[] bytes2 = Convert.FromBase64String( base64 );
-            string result = bytes2.GetBase64();
+            var value = "test";
+            var encoding = Encoding.UTF8;
+            var bytes = encoding.GetBytes( value );
+            var base64 = bytes.GetBase64();
+            var bytes2 = Convert.FromBase64String( base64 );
+            var result = bytes2.GetBase64();
             Assert.Equal( base64, result );
         }
 

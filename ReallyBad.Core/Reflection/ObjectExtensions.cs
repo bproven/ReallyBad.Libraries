@@ -6,8 +6,8 @@
 //     Project:    ReallyBad.Core
 //     File:       ObjectExtensions.cs
 // 
-//     Created:    05/02/2021 6:45 PM
-//     Updated:    05/02/2021 6:53 PM
+//     Created:    09/14/2004 9:14 AM
+//     Updated:    05/06/2021 10:59 PM
 // 
 
 using System;
@@ -24,96 +24,100 @@ using ReallyBad.Core.Validation;
 namespace ReallyBad.Core.Reflection
 {
 
-	public static class ObjectExtensions
-	{
+    public static class ObjectExtensions
+    {
 
-		private static readonly string name = typeof( ObjectExtensions ).FullName ?? string.Empty;
+        private static readonly string name = typeof( ObjectExtensions ).FullName ?? string.Empty;
 
-		private static ILogger? _log;
+        private static ILogger? _log;
 
-		private static ILogger Log => _log ??= Logger.CreateLogger( name );
+        private static ILogger Log => _log ??= Logger.CreateLogger( name );
 
-		public static object? GetPropertyValueObject( this object item, string propertyName,
-			object? defaultValue )
-		{
-			ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
-			return item.GetType().GetProperty( propertyName )?.GetValue( item ) ?? defaultValue;
-		}
+        public static object? GetPropertyValueObject( this object item, string propertyName,
+            object? defaultValue )
+        {
+            ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
 
-		public static T? GetPropertyValue<T>( this object item, string propertyName, T? defaultValue )
-		{
-			ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
-			return (T?)item.GetPropertyValueObject( propertyName, defaultValue );
-		}
+            return item.GetType().GetProperty( propertyName )?.GetValue( item ) ?? defaultValue;
+        }
 
-		public static T? GetPropertyValue<T>( this object item, string propertyName )
-		{
-			ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
-			return item.GetPropertyValue( propertyName, default( T ) );
-		}
+        public static T? GetPropertyValue<T>( this object item, string propertyName, T? defaultValue )
+        {
+            ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
 
-		public static bool SetPropertyValue( this object item, string propertyName, object? value,
-			bool throwIfNotFound = true )
-		{
-			ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
-			var propertyInfo = item.GetType().GetProperty( propertyName );
-			var result = false;
+            return(T?)item.GetPropertyValueObject( propertyName, defaultValue );
+        }
 
-			if ( propertyInfo is not null )
-			{
-				result = true;
+        public static T? GetPropertyValue<T>( this object item, string propertyName )
+        {
+            ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
 
-				try
-				{
-					propertyInfo.SetValue( item, value );
-				}
-				catch ( ArgumentException ex )
-				{
-					Log.LogError( ex.Message, ex );
+            return item.GetPropertyValue( propertyName, default( T ) );
+        }
 
-					if ( throwIfNotFound )
-					{
-						throw;
-					}
-				}
-			}
-			else if ( throwIfNotFound )
-			{
-				throw new MissingMemberException( $"Property {propertyName} not found." );
-			}
+        public static bool SetPropertyValue( this object item, string propertyName, object? value,
+            bool throwIfNotFound = true )
+        {
+            ArgumentValidator.ValidateNotEmpty( propertyName, nameof( propertyName ) );
+            var propertyInfo = item.GetType().GetProperty( propertyName );
+            var result = false;
 
-			return result;
-		}
+            if ( propertyInfo is not null )
+            {
+                result = true;
 
-		public static object? GetPropertyValueByAssignableType( this object item, Type type )
-			=> item.GetType()
-				.GetProperties()
-				.SingleOrDefault( pi => type.IsAssignableFrom( pi.PropertyType ) )
-				?.GetValue( item );
+                try
+                {
+                    propertyInfo.SetValue( item, value );
+                }
+                catch ( ArgumentException ex )
+                {
+                    Log.LogError( ex.Message, ex );
 
-		public static T? GetPropertyValueByAssignableType<T>( this object item )
-			=> (T?)item.GetPropertyValueByAssignableType( typeof( T ) );
+                    if ( throwIfNotFound )
+                    {
+                        throw;
+                    }
+                }
+            }
+            else if ( throwIfNotFound )
+            {
+                throw new MissingMemberException( $"Property {propertyName} not found." );
+            }
 
-		public static object? GetGenericPropertyValueByType( this object item, Type genericType,
-			ICollection<Type> types )
-			=> item.GetType()
-				.GetProperties()
-				.SingleOrDefault( pi => pi.PropertyType.IsGenericType &&
-				                        pi.PropertyType.GetGenericTypeDefinition() == genericType &&
-				                        pi.PropertyType.GenericTypeArguments.Length == types.Count &&
-				                        pi.PropertyType.GenericTypeArguments.SequenceEqual( types ) )
-				?.GetValue( item );
+            return result;
+        }
 
-		public static object? GetGenericPropertyValueByType( this object item, Type genericType, params Type[] types )
-		{
-			ArgumentValidator.ValidateNotEmpty( types, nameof( types ) );
-			return item.GetGenericPropertyValueByType( genericType, (ICollection<Type>)types );
-		}
+        public static object? GetPropertyValueByAssignableType( this object item, Type type )
+            => item.GetType()
+                .GetProperties()
+                .SingleOrDefault( pi => type.IsAssignableFrom( pi.PropertyType ) )
+                ?.GetValue( item );
 
-		public static TGenericType? GetGenericPropertyValueByType<TGenericType>( this object item )
-			=> (TGenericType?)item.GetGenericPropertyValueByType( typeof( TGenericType ).GetGenericTypeDefinition(),
-				typeof( TGenericType ).GetGenericArguments() );
+        public static T? GetPropertyValueByAssignableType<T>( this object item )
+            => (T?)item.GetPropertyValueByAssignableType( typeof( T ) );
 
-	}
+        public static object? GetGenericPropertyValueByType( this object item, Type genericType,
+            ICollection<Type> types )
+            => item.GetType()
+                .GetProperties()
+                .SingleOrDefault( pi => pi.PropertyType.IsGenericType &&
+                                        pi.PropertyType.GetGenericTypeDefinition() == genericType &&
+                                        pi.PropertyType.GenericTypeArguments.Length == types.Count &&
+                                        pi.PropertyType.GenericTypeArguments.SequenceEqual( types ) )
+                ?.GetValue( item );
+
+        public static object? GetGenericPropertyValueByType( this object item, Type genericType, params Type[] types )
+        {
+            ArgumentValidator.ValidateNotEmpty( types, nameof( types ) );
+
+            return item.GetGenericPropertyValueByType( genericType, (ICollection<Type>)types );
+        }
+
+        public static TGenericType? GetGenericPropertyValueByType<TGenericType>( this object item )
+            => (TGenericType?)item.GetGenericPropertyValueByType( typeof( TGenericType ).GetGenericTypeDefinition(),
+                typeof( TGenericType ).GetGenericArguments() );
+
+    }
 
 }
